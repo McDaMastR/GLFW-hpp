@@ -1,0 +1,10 @@
+# VSCode folder
+.vscode
+
+# MacOS
+.DS_Store
+
+# Testing
+tests
+build
+CMakeLists.txt
