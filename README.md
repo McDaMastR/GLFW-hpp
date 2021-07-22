@@ -4,7 +4,7 @@ A C++ binding for the GLFW library
 
 ## Compatibility
 
-GLFW-hpp is currently compatible with GLFW 3.3.4
+GLFW-hpp is currently compatible with GLFW 3.3
 
 ## Including into your project
 
@@ -22,3 +22,11 @@ This GLFW binding is implemented similarly to the vulkan.hpp binding for the Vul
 
 There are many macros that can be defined before including glfw3.hpp to configure the implementation
 These macros are specified in glfw3.hpp
+
+## State
+
+GLFW-hpp is currently still in progress and not ready for use in projects
+The features that have been implemented are:
+
+- Macro configurations
+- Enum classes
