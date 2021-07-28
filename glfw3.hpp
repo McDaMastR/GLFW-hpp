@@ -15,6 +15,7 @@ If you are using a compiler not supported, you will have to define these macros 
 	#define GLFW_HPP_UNRESTRICTED_UNIONS // Whether unrestricted unions are available
 	#define GLFW_HPP_INLINE // The keyword/attribute to force inline functions
 	#define GLFW_HPP_NOEXCEPT // The keyword/attribute to specify that a function will never raise an exception
+	#define GLFW_HPP_ENABLE_HASHING // Creates hashing algorithms for each class
 
 
 Before including this file, you can define some macros to configure this file's binding.
@@ -96,20 +97,21 @@ Macros:
 	#include <vulkan/vulkan.hpp>
 #endif
 
-#include <cstdio>
-
 #ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
-	#include <sstream>
+	#include <sstream> // Inclues <string> && <string_view>
 
 	#if GLFW_HPP_CPP_VERSION >= 17
-		#include <string_view>
 		#define GLFW_HPP_STRING std::string_view
 	#else
-		#include <string>
 		#define GLFW_HPP_STRING std::string
 	#endif
 #else
+	#include <cstdio>
 	#define GLFW_HPP_STRING const char *
+
+	#ifdef GLFW_HPP_ENABLE_HASHING
+		#include <utility>
+	#endif
 #endif
 
 #ifndef GLFW_HPP_ASSERT
@@ -308,7 +310,7 @@ Macros:
 	#if   __cpp_if_consteval >= 202106L && GLFW_HPP_CPP_VERSION >= 23
 		#define GLFW_HPP_CONSTEVAL_IF if consteval
 	#else
-		#define GLFW_HPP_CONSTEVAL_IF if(false)
+		#define GLFW_HPP_CONSTEVAL_IF if(false) GLFW_HPP_UNLIKELY
 	#endif
 #endif
 
@@ -363,6 +365,8 @@ Macros:
 		#else
 			#define GLFW_HPP_NOEXCEPT
 		#endif
+	#else
+		#error "Unknown compiler; GLFW_HPP_NOEXCEPT requires user definition"
 	#endif
 #endif
 
@@ -379,17 +383,85 @@ Macros:
 static_assert(GLFW_VERSION_MAJOR == 3, "GLFW version major is not correct!");
 static_assert(GLFW_VERSION_MINOR == 3, "GLFW version minor is not correct!");
 
-// === General Value Placement Macros ===
-
-#define GLFW_HPP_MAX_HEX_STRING_LENGTH 5
-
 // === Begin the Namespace ===
 
 namespace GLFW_HPP_NAMESPACE
 {
 	// === Helper Types ===
 
-	using EnumSize = int;
+	using EnumSize 	   	   = int;
+	using ScreenCoordinate = int;
+	using Pixel		   	   = int;
+	using Scancode		   = int;
+	using Count			   = int;
+	using BitDepth		   = int;
+	using Hz			   = int;
+	using Version		   = int;
+	using Millimetre	   = int;
+	using ContentScale 	   = float;
+	using GamepadAxisState = float;
+	using CursorCoordinate = double;
+	using Offset		   = double;
+	using Codepoint		   = unsigned int;
+	using ArraySize		   = unsigned int;
+	using SmallEnumSize    = unsigned char;
+	using Response		   = unsigned short;
+	using PixelData		   = unsigned char *;
+
+	template <class T>
+	class Flags
+	{
+	public:
+		// Contructors and destructor
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR 					Flags(				  ) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT Flags(const Flags<T> &) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT Flags(Flags<T> &&	  ) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_CONSTEXPR_DESTRUCTOR							   ~Flags(				  ) GLFW_HPP_NOEXCEPT = default;
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT Flags(const T bit		) GLFW_HPP_NOEXCEPT
+			: m_flags(static_cast<EnumSize>(bit)) {}
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT Flags(const EnumSize bit) GLFW_HPP_NOEXCEPT
+			: m_flags(bit) {}
+
+		// Relational operators
+#ifdef GLFW_HPP_INCLUDE_COMPARE
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR auto operator<=>(const Flags<T> &) const GLFW_HPP_NOEXCEPT = default;
+#else
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR bool operator==(const Flags<T> &other) const GLFW_HPP_NOEXCEPT {return m_flags == other.m_flags;}
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR bool operator!=(const Flags<T> &other) const GLFW_HPP_NOEXCEPT {return m_flags != other.m_flags;}
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR bool operator< (const Flags<T> &other) const GLFW_HPP_NOEXCEPT {return m_flags <  other.m_flags;}
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR bool operator<=(const Flags<T> &other) const GLFW_HPP_NOEXCEPT {return m_flags <= other.m_flags;}
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR bool operator> (const Flags<T> &other) const GLFW_HPP_NOEXCEPT {return m_flags >  other.m_flags;}
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR bool operator>=(const Flags<T> &other) const GLFW_HPP_NOEXCEPT {return m_flags >= other.m_flags;}
+#endif
+
+		// Logical operator
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR bool operator!() const GLFW_HPP_NOEXCEPT {return !m_flags;}
+
+		// Bitwise operators
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Flags<T> operator&(const Flags<T> &other) const GLFW_HPP_NOEXCEPT {return {m_flags & other.m_flags};}
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Flags<T> operator|(const Flags<T> &other) const GLFW_HPP_NOEXCEPT {return {m_flags | other.m_flags};}
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Flags<T> operator^(const Flags<T> &other) const GLFW_HPP_NOEXCEPT {return {m_flags ^ other.m_flags};}
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Flags<T> operator~(					  ) const GLFW_HPP_NOEXCEPT {return {~m_flags};				  }
+
+		// Assignment operators
+		GLFW_HPP_CONSTEXPR_NON_CONST_METHOD Flags<T> &operator= (const Flags<T> &	  ) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_CONSTEXPR_NON_CONST_METHOD Flags<T> &operator= (Flags<T> &&		  ) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_CONSTEXPR_NON_CONST_METHOD Flags<T> &operator&=(const Flags<T> &other) GLFW_HPP_NOEXCEPT {m_flags &= other.m_flags; return *this;}
+		GLFW_HPP_CONSTEXPR_NON_CONST_METHOD Flags<T> &operator|=(const Flags<T> &other) GLFW_HPP_NOEXCEPT {m_flags |= other.m_flags; return *this;}
+		GLFW_HPP_CONSTEXPR_NON_CONST_METHOD Flags<T> &operator^=(const Flags<T> &other) GLFW_HPP_NOEXCEPT {m_flags ^= other.m_flags; return *this;}
+
+		// Cast operators
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT operator bool	 () const GLFW_HPP_NOEXCEPT {return static_cast<bool>(m_flags);}
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT operator EnumSize() const GLFW_HPP_NOEXCEPT {return m_flags;				   }
+
+	private:
+		EnumSize m_flags = 0;
+
+#ifdef GLFW_HPP_ENABLE_HASHING
+		friend struct std::hash<Flags>;
+#endif
+	};
 
 	// === Enums ===
 
@@ -400,26 +472,76 @@ namespace GLFW_HPP_NAMESPACE
 		ss << std::hex << value;
 		return {"Invalid value: " + ss.str()};
 #else
-		static char string[15 + GLFW_HPP_MAX_HEX_STRING_LENGTH + 1] = "Invalid value: ";
-		snprintf(string + 15, GLFW_HPP_MAX_HEX_STRING_LENGTH, "%X", value);
+		static char string[/* Size of "Invalid value: " */ 15 + /* Max size for string hex value */ 5 + /* Null termination character */ 1] = "Invalid value: ";
+		snprintf(string + 15, 5, "%X", value);
 		return string;
 #endif
 	}
 
-	// Key and button actions
-	enum class Action : EnumSize
+	enum class Bool : EnumSize
 	{
-		// The key or mouse button was released
-		eRelease = GLFW_RELEASE,
+		/*! @brief One.
+		*
+		*  This is only semantic sugar for the number 1.  You can instead use `1` or
+		*  `true` or `_True` or `GL_TRUE` or `VK_TRUE` or anything else that is equal
+		*  to one.
+		*
+		*  @ingroup init
+		*/
+		eTrue  = GLFW_TRUE,
 
-		// The key or mouse button was pressed
-		ePress   = GLFW_PRESS,
-
-		// The key was held down until it repeated
-		eRepeat	 = GLFW_REPEAT
+		/*! @brief Zero.
+		*
+		*  This is only semantic sugar for the number 0.  You can instead use `0` or
+		*  `false` or `_False` or `GL_FALSE` or `VK_FALSE` or anything else that is
+		*  equal to zero.
+		*
+		*  @ingroup init
+		*/
+		eFalse = GLFW_FALSE
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const Action value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Bool value) GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case Bool::eTrue:  return "True";
+		case Bool::eFalse: return "False";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	/*! @name Key and button actions 
+	 */
+	enum class Action : EnumSize
+	{
+		/*! @brief The key or mouse button was released.
+		 *
+		 *  The key or mouse button was released.
+		 *
+		 *  @ingroup input
+		 */
+		eRelease = GLFW_RELEASE,
+
+		/*! @brief The key or mouse button was pressed.
+ 		 *
+ 		 *  The key or mouse button was pressed.
+ 		 *
+ 		 *  @ingroup input
+ 		 */
+		ePress   = GLFW_PRESS,
+
+		/*! @brief The key was held down until it repeated.
+ 		 *
+ 		 *  The key was held down until it repeated.
+ 		 *
+ 		 *  @ingroup input
+ 		 */
+		eRepeat	 = GLFW_REPEAT
+	};
+ 
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Action value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -431,8 +553,54 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Joystick hat states
-	// See [joystick hat input](@ref joystick_hat) for how these are used
+	/*! @name Key and button actions 
+	 */
+	enum class SmallAction : SmallEnumSize
+	{
+		/*! @brief The key or mouse button was released.
+		 *
+		 *  The key or mouse button was released.
+		 *
+		 *  @ingroup input
+		 */
+		eRelease = GLFW_RELEASE,
+
+		/*! @brief The key or mouse button was pressed.
+ 		 *
+ 		 *  The key or mouse button was pressed.
+ 		 *
+ 		 *  @ingroup input
+ 		 */
+		ePress   = GLFW_PRESS,
+
+		/*! @brief The key was held down until it repeated.
+ 		 *
+ 		 *  The key was held down until it repeated.
+ 		 *
+ 		 *  @ingroup input
+ 		 */
+		eRepeat	 = GLFW_REPEAT
+	};
+ 
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const SmallAction value) GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case SmallAction::eRelease: return "Release";
+		case SmallAction::ePress:   return "Press";
+		case SmallAction::eRepeat:  return "Repeat";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	/*! @defgroup hat_state Joystick hat states
+	 *  @brief Joystick hat states.
+	 *
+	 *  See [joystick hat input](@ref joystick_hat) for how these are used.
+	 *
+	 *  @ingroup input 
+	 */
 	enum class Hat : EnumSize
 	{
 		eCentered  = GLFW_HAT_CENTERED,
@@ -446,7 +614,7 @@ namespace GLFW_HPP_NAMESPACE
 		eLeftDown  = GLFW_HAT_LEFT_DOWN
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const Hat value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Hat value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -464,11 +632,34 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Keyboard key IDs
-	// See [key input](@ref input_key) for how these are used
+	/*! @defgroup keys Keyboard keys
+ 	 *  @brief Keyboard key IDs.
+ 	 *
+ 	 *  See [key input](@ref input_key) for how these are used.
+ 	 *
+ 	 *  These key codes are inspired by the _USB HID Usage Tables v1.12_ (p. 53-60),
+ 	 *  but re-arranged to map to 7-bit ASCII for printable keys (function keys are
+ 	 *  put in the 256+ range).
+ 	 *
+ 	 *  The naming of the key codes follow these rules:
+ 	 *   - The US keyboard layout is used
+ 	 *   - Names of printable alpha-numeric characters are used (e.g. "A", "R",
+ 	 *     "3", etc.)
+ 	 *   - For non-alphanumeric characters, Unicode:ish names are used (e.g.
+ 	 *     "COMMA", "LEFT_SQUARE_BRACKET", etc.). Note that some names do not
+ 	 *     correspond to the Unicode standard (usually for brevity)
+ 	 *   - Keys that lack a clear US mapping are named "WORLD_x"
+ 	 *   - For non-printable keys, custom names are used (e.g. "F4",
+ 	 *     "BACKSPACE", etc.)
+ 	 *
+ 	 *  @ingroup input
+ 	 */
 	enum class Key : EnumSize
 	{
+		/* The unknown key */
 		eUnknown 	  = GLFW_KEY_UNKNOWN,
+
+		/* Printable keys */
 		eSpace 	 	  = GLFW_KEY_SPACE,
 		eApostrophe   = GLFW_KEY_APOSTROPHE,
 		eComma 	 	  = GLFW_KEY_COMMA,
@@ -519,6 +710,8 @@ namespace GLFW_HPP_NAMESPACE
 		eGraveAccent  = GLFW_KEY_GRAVE_ACCENT,
 		eWorld1	 	  = GLFW_KEY_WORLD_1,
 		eWorld2	 	  = GLFW_KEY_WORLD_2,
+
+		/* Function keys */
 		eEscape	 	  = GLFW_KEY_ESCAPE,
 		eEnter	  	  = GLFW_KEY_ENTER,
 		eTab	 	  = GLFW_KEY_TAB,
@@ -592,7 +785,7 @@ namespace GLFW_HPP_NAMESPACE
 		eLast	      = GLFW_KEY_LAST
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const Key value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Key value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -722,29 +915,57 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Modifier key flags
+	/*! @defgroup mods Modifier key flags
+ 	 *  @brief Modifier key flags.
+ 	 *
+ 	 *  See [key input](@ref input_key) for how these are used.
+ 	 *
+ 	 *  @ingroup input
+ 	 */
 	enum class Mod : EnumSize
 	{
-		// If this bit is set one or more Shift keys were held down
+		/*! @brief If this bit is set one or more Shift keys were held down.
+ 		 *
+ 		 *  If this bit is set one or more Shift keys were held down.
+ 		 */
 		eShift 	  = GLFW_MOD_SHIFT,
 
-		// If this bit is set one or more Control keys were held down
+		/*! @brief If this bit is set one or more Control keys were held down.
+ 		 *
+ 		 *  If this bit is set one or more Control keys were held down.
+ 		 */
 		eControl  = GLFW_MOD_CONTROL,
 
-		// If this bit is set one or more Alt keys were held down
+		/*! @brief If this bit is set one or more Alt keys were held down.
+ 		 *
+ 		 *  If this bit is set one or more Alt keys were held down.
+ 		 */
 		eAlt 	  = GLFW_MOD_ALT,
 
-		// If this bit is set one or more Super keys were held down
+		/*! @brief If this bit is set one or more Super keys were held down.
+ 		 *
+ 		 *  If this bit is set one or more Super keys were held down.
+ 		 */
 		eSuper 	  = GLFW_MOD_SUPER,
 
-		// If this bit is set the Caps Lock key is enabled
+		/*! @brief If this bit is set the Caps Lock key is enabled.
+ 		 *
+ 		 *  If this bit is set the Caps Lock key is enabled and the @ref
+ 		 *  GLFW_LOCK_KEY_MODS input mode is set.
+ 		 */
 		eCapsLock = GLFW_MOD_CAPS_LOCK,
 
-		// If this bit is set the Num Lock key is enabled
+		/*! @brief If this bit is set the Num Lock key is enabled.
+ 		 *
+ 		 *  If this bit is set the Num Lock key is enabled and the @ref
+ 		 *  GLFW_LOCK_KEY_MODS input mode is set.
+ 		 */
 		eNumLock  = GLFW_MOD_NUM_LOCK
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const Mod value) GLFW_HPP_NOEXCEPT
+	using ModFlags = Flags<Mod>;
+
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Mod value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -759,8 +980,13 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Mouse button IDs
-	// See [mouse button input](@ref input_mouse_button) for how these are used
+	/*! @defgroup buttons Mouse buttons
+ 	 *  @brief Mouse button IDs.
+ 	 *
+ 	 *  See [mouse button input](@ref input_mouse_button) for how these are used.
+ 	 *
+ 	 *  @ingroup input
+ 	 */
 	enum class MouseButton : EnumSize
 	{
 		e1 		= GLFW_MOUSE_BUTTON_1,
@@ -777,7 +1003,7 @@ namespace GLFW_HPP_NAMESPACE
 		eMiddle = GLFW_MOUSE_BUTTON_MIDDLE,
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const MouseButton value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const MouseButton value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -794,8 +1020,13 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Joystick IDs
-	// See [joystick input](@ref joystick) for how these are used
+	/*! @defgroup joysticks Joysticks
+ 	 *  @brief Joystick IDs.
+ 	 *
+ 	 *  See [joystick input](@ref joystick) for how these are used.
+ 	 *
+ 	 *  @ingroup input
+ 	 */
 	enum class Joystick : EnumSize
 	{
 		e1 	  = GLFW_JOYSTICK_1,
@@ -817,7 +1048,7 @@ namespace GLFW_HPP_NAMESPACE
 		eLast = GLFW_JOYSTICK_LAST
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const Joystick value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Joystick value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -842,8 +1073,13 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Gamepad buttons
-	// See @ref gamepad for how these are used
+	/*! @defgroup gamepad_buttons Gamepad buttons
+ 	 *  @brief Gamepad buttons.
+ 	 *
+ 	 *  See @ref gamepad for how these are used.
+ 	 *
+ 	 *  @ingroup input
+ 	 */
 	enum class GamepadButton : EnumSize
 	{
 		eA 			 = GLFW_GAMEPAD_BUTTON_A,
@@ -868,7 +1104,7 @@ namespace GLFW_HPP_NAMESPACE
 		eTriangle 	 = GLFW_GAMEPAD_BUTTON_TRIANGLE
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const GamepadButton value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const GamepadButton value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -892,8 +1128,13 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Gamepad axes
-	// See @ref gamepad for how these are used
+	/*! @defgroup gamepad_axes Gamepad axes
+ 	 *  @brief Gamepad axes.
+ 	 *
+ 	 *  See @ref gamepad for how these are used.
+ 	 *
+ 	 *  @ingroup input
+ 	 */
 	enum class GamepadAxis : EnumSize
 	{
 		eLeftX 		  = GLFW_GAMEPAD_AXIS_LEFT_X,
@@ -905,7 +1146,7 @@ namespace GLFW_HPP_NAMESPACE
 		eLast 		  = GLFW_GAMEPAD_AXIS_LAST
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const GamepadAxis value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const GamepadAxis value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -920,44 +1161,152 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Error codes
+	/*! @defgroup errors Error codes
+ 	 *  @brief Error codes.
+ 	 *
+ 	 *  See [error handling](@ref error_handling) for how these are used.
+ 	 *
+ 	 *  @ingroup init
+ 	 */
 	enum class Error : EnumSize
 	{
-		// No error has occurred
+		/*! @brief No error has occurred.
+ 		 *
+ 		 *  No error has occurred.
+ 		 *
+ 		 *  @analysis Yay.
+ 		 */
 		eNone	 			= GLFW_NO_ERROR,
 
-		// GLFW has not been initialized
+		/*! @brief GLFW has not been initialized.
+ 		 *
+ 		 *  This occurs if a GLFW function was called that must not be called unless the
+ 		 *  library is [initialized](@ref intro_init).
+ 		 *
+ 		 *  @analysis Application programmer error.  Initialize GLFW before calling any
+ 		 *  function that requires initialization.
+ 		 */
 		eNotInitalized 		= GLFW_NOT_INITIALIZED,
 
-		// No context is current for this thread
+		/*! @brief No context is current for this thread.
+ 		 *
+ 		 *  This occurs if a GLFW function was called that needs and operates on the
+ 		 *  current OpenGL or OpenGL ES context but no context is current on the calling
+ 		 *  thread.  One such function is @ref glfwSwapInterval.
+ 		 *
+ 		 *  @analysis Application programmer error.  Ensure a context is current before
+ 		 *  calling functions that require a current context.
+ 		 */
 		eNoCurrentContext 	= GLFW_NO_CURRENT_CONTEXT,
 
-		// One of the arguments to the function was an invalid enum value
+		/*! @brief One of the arguments to the function was an invalid enum value.
+ 		 *
+ 		 *  One of the arguments to the function was an invalid enum value, for example
+ 		 *  requesting @ref GLFW_RED_BITS with @ref glfwGetWindowAttrib.
+ 		 *
+ 		 *  @analysis Application programmer error.  Fix the offending call.
+ 		 */
 		eInvalidEnum 		= GLFW_INVALID_ENUM,
 
-		// One of the arguments to the function was an invalid value
+		/*! @brief One of the arguments to the function was an invalid value.
+ 		 *
+ 		 *  One of the arguments to the function was an invalid value, for example
+ 		 *  requesting a non-existent OpenGL or OpenGL ES version like 2.7.
+ 		 *
+ 		 *  Requesting a valid but unavailable OpenGL or OpenGL ES version will instead
+ 		 *  result in a @ref GLFW_VERSION_UNAVAILABLE error.
+ 		 *
+ 		 *  @analysis Application programmer error.  Fix the offending call.
+ 		 */
 		eInvalidValue 		= GLFW_INVALID_VALUE,
 
-		// A memory allocation failed
+		/*! @brief A memory allocation failed.
+ 		 *
+ 		 *  A memory allocation failed.
+ 		 *
+ 		 *  @analysis A bug in GLFW or the underlying operating system.  Report the bug
+ 		 *  to our [issue tracker](https://github.com/glfw/glfw/issues).
+ 		 */
 		eOutOfMemory 		= GLFW_OUT_OF_MEMORY,
 
-		// GLFW could not find support for the requested API on the system
+		/*! @brief GLFW could not find support for the requested API on the system.
+ 		 *
+ 		 *  GLFW could not find support for the requested API on the system.
+ 		 *
+ 		 *  @analysis The installed graphics driver does not support the requested
+ 		 *  API, or does not support it via the chosen context creation backend.
+ 		 *  Below are a few examples.
+ 		 *
+ 		 *  @par
+ 		 *  Some pre-installed Windows graphics drivers do not support OpenGL.  AMD only
+ 		 *  supports OpenGL ES via EGL, while Nvidia and Intel only support it via
+ 		 *  a WGL or GLX extension.  macOS does not provide OpenGL ES at all.  The Mesa
+ 		 *  EGL, OpenGL and OpenGL ES libraries do not interface with the Nvidia binary
+ 		 *  driver.  Older graphics drivers do not support Vulkan.
+ 		 */
 		eApiUnavailable 	= GLFW_API_UNAVAILABLE,
 
-		// The requested OpenGL or OpenGL ES version is not available
+		/*! @brief The requested OpenGL or OpenGL ES version is not available.
+ 		 *
+ 		 *  The requested OpenGL or OpenGL ES version (including any requested context
+ 		 *  or framebuffer hints) is not available on this machine.
+ 		 *
+ 		 *  @analysis The machine does not support your requirements.  If your
+ 		 *  application is sufficiently flexible, downgrade your requirements and try
+ 		 *  again.  Otherwise, inform the user that their machine does not match your
+ 		 *  requirements.
+ 		 *
+ 		 *  @par
+ 		 *  Future invalid OpenGL and OpenGL ES versions, for example OpenGL 4.8 if 5.0
+ 		 *  comes out before the 4.x series gets that far, also fail with this error and
+ 		 *  not @ref GLFW_INVALID_VALUE, because GLFW cannot know what future versions
+ 		 *  will exist.
+ 		 */
 		eVersionUnavailable = GLFW_VERSION_UNAVAILABLE,
 
-		// A platform-specific error occurred that does not match any of the more specific categories
+		/*! @brief A platform-specific error occurred that does not match any of the
+ 		 *  more specific categories.
+ 		 *
+ 		 *  A platform-specific error occurred that does not match any of the more
+ 		 *  specific categories.
+ 		 *
+ 		 *  @analysis A bug or configuration error in GLFW, the underlying operating
+ 		 *  system or its drivers, or a lack of required resources.  Report the issue to
+ 		 *  our [issue tracker](https://github.com/glfw/glfw/issues).
+ 		 */
 		ePlatform	 		= GLFW_PLATFORM_ERROR,
 
-		// The requested format is not supported or available
+		/*! @brief The requested format is not supported or available.
+ 		 *
+ 		 *  If emitted during window creation, the requested pixel format is not
+ 		 *  supported.
+ 		 *
+ 		 *  If emitted when querying the clipboard, the contents of the clipboard could
+ 		 *  not be converted to the requested format.
+ 		 *
+ 		 *  @analysis If emitted during window creation, one or more
+ 		 *  [hard constraints](@ref window_hints_hard) did not match any of the
+ 		 *  available pixel formats.  If your application is sufficiently flexible,
+ 		 *  downgrade your requirements and try again.  Otherwise, inform the user that
+ 		 *  their machine does not match your requirements.
+ 		 *
+ 		 *  @par
+ 		 *  If emitted when querying the clipboard, ignore the error or report it to
+ 		 *  the user, as appropriate.
+ 		 */
 		eFormatUnavailable 	= GLFW_FORMAT_UNAVAILABLE,
 
-		// The specified window does not have an OpenGL or OpenGL ES context
+		/*! @brief The specified window does not have an OpenGL or OpenGL ES context.
+		 *
+		 *  A window that does not have an OpenGL or OpenGL ES context was passed to
+		 *  a function that requires it to have one.
+		 *
+		 *  @analysis Application programmer error.  Fix the offending call.
+		 */
 		eNoWindowContext 	= GLFW_NO_WINDOW_CONTEXT
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const Error value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Error value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -977,140 +1326,285 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Hints related to window creation
+	/*! @addtogroup window
+	 */
 	enum class WindowHint : EnumSize
 	{
-		// Input focus window hint
+		/*! @brief Input focus window hint and attribute
+ 		 *
+ 		 *  Input focus [window hint](@ref GLFW_FOCUSED_hint) or
+ 		 *  [window attribute](@ref GLFW_FOCUSED_attrib).
+ 		 */
 		eFocused   	  			= GLFW_FOCUSED,
 
-		// Window resize-ability window hint
+		/*! @brief Window resize-ability window hint and attribute
+ 		 *
+ 		 *  Window resize-ability [window hint](@ref GLFW_RESIZABLE_hint) and
+ 		 *  [window attribute](@ref GLFW_RESIZABLE_attrib).
+ 		 */
 		eResizable 	  			= GLFW_RESIZABLE,
 
-		// Window visibility window hint
+		/*! @brief Window visibility window hint and attribute
+ 		 *
+ 		 *  Window visibility [window hint](@ref GLFW_VISIBLE_hint) and
+ 		 *  [window attribute](@ref GLFW_VISIBLE_attrib).
+ 		 */
 		eVisible   	  			= GLFW_VISIBLE,
 
-		// Window decoration window hint
+		/*! @brief Window decoration window hint and attribute
+ 		 *
+ 		 *  Window decoration [window hint](@ref GLFW_DECORATED_hint) and
+ 		 *  [window attribute](@ref GLFW_DECORATED_attrib).
+ 		 */
 		eDecorated 	  			= GLFW_DECORATED,
 
-		// Window auto-iconification window hint
+		/*! @brief Window auto-iconification window hint and attribute
+ 		 *
+ 		 *  Window auto-iconification [window hint](@ref GLFW_AUTO_ICONIFY_hint) and
+ 		 *  [window attribute](@ref GLFW_AUTO_ICONIFY_attrib).
+ 		 */
 		eAutoIconify  			= GLFW_AUTO_ICONIFY,
 
-		// Window decoration window hint
+		/*! @brief Window decoration window hint and attribute
+ 		 *
+ 		 *  Window decoration [window hint](@ref GLFW_FLOATING_hint) and
+ 		 *  [window attribute](@ref GLFW_FLOATING_attrib).
+ 		 */
 		eFloating 	  			= GLFW_FLOATING,
 
-		// Window maximization window hint
+		/*! @brief Window maximization window hint and attribute
+ 		 *
+ 		 *  Window maximization [window hint](@ref GLFW_MAXIMIZED_hint) and
+ 		 *  [window attribute](@ref GLFW_MAXIMIZED_attrib).
+ 		 */
 		eMaximized    			= GLFW_MAXIMIZED,
 
-		// Cursor centering window hint
+		/*! @brief Cursor centering window hint
+ 		 *
+ 		 *  Cursor centering [window hint](@ref GLFW_CENTER_CURSOR_hint).
+ 		 */
 		eCenterCursor 			= GLFW_CENTER_CURSOR,
 
-		// Window framebuffer transparency hint
+		/*! @brief Window framebuffer transparency hint and attribute
+ 		 *
+ 		 *  Window framebuffer transparency
+ 		 *  [window hint](@ref GLFW_TRANSPARENT_FRAMEBUFFER_hint) and
+ 		 *  [window attribute](@ref GLFW_TRANSPARENT_FRAMEBUFFER_attrib).
+ 		 */
 		eTransparentFramebuffer = GLFW_TRANSPARENT_FRAMEBUFFER,
 
-		// Input focus on calling show window hint
+		/*! @brief Input focus on calling show window hint and attribute
+ 		 *
+ 		 *  Input focus [window hint](@ref GLFW_FOCUS_ON_SHOW_hint) or
+ 		 *  [window attribute](@ref GLFW_FOCUS_ON_SHOW_attrib).
+ 		 */
 		eFocusOnShow			= GLFW_FOCUS_ON_SHOW,
 
-		// Framebuffer bit depth hint
+		/*! @brief Framebuffer bit depth hint.
+ 		 *
+ 		 *  Framebuffer bit depth [hint](@ref GLFW_RED_BITS).
+ 		 */
 		eRedBits				= GLFW_RED_BITS,
 
-		// Framebuffer bit depth hint
+		/*! @brief Framebuffer bit depth hint.
+ 		 *
+ 		 *  Framebuffer bit depth [hint](@ref GLFW_GREEN_BITS).
+ 		 */
 		eGreenBits				= GLFW_GREEN_BITS,
 
-		// Framebuffer bit depth hint
+		/*! @brief Framebuffer bit depth hint.
+ 		 *
+ 		 *  Framebuffer bit depth [hint](@ref GLFW_BLUE_BITS).
+ 		 */
 		eBlueBits				= GLFW_BLUE_BITS,
 
-		// Framebuffer bit depth hint
+		/*! @brief Framebuffer bit depth hint.
+ 		 *
+ 		 *  Framebuffer bit depth [hint](@ref GLFW_ALPHA_BITS).
+ 		 */
 		eAlphaBits				= GLFW_ALPHA_BITS,
 
-		// Framebuffer bit depth hint
+		/*! @brief Framebuffer bit depth hint.
+ 		 *
+ 		 *  Framebuffer bit depth [hint](@ref GLFW_DEPTH_BITS).
+ 		 */
 		eDepthBits				= GLFW_DEPTH_BITS,
 
-		// Framebuffer bit depth hint
+		/*! @brief Framebuffer bit depth hint.
+ 		 *
+ 		 *  Framebuffer bit depth [hint](@ref GLFW_STENCIL_BITS).
+ 		 */
 		eStencilBits			= GLFW_STENCIL_BITS,
 
-		// Framebuffer bit depth hint
+		/*! @brief Framebuffer bit depth hint.
+ 		 *
+ 		 *  Framebuffer bit depth [hint](@ref GLFW_ACCUM_RED_BITS).
+ 		 */
 		eAccumRedBits			= GLFW_ACCUM_RED_BITS,
 
-		// Framebuffer bit depth hint
+		/*! @brief Framebuffer bit depth hint.
+ 		 *
+ 		 *  Framebuffer bit depth [hint](@ref GLFW_ACCUM_GREEN_BITS).
+ 		 */
 		eAccumGreenBits			= GLFW_ACCUM_GREEN_BITS,
 
-		// Framebuffer bit depth hint
+		/*! @brief Framebuffer bit depth hint.
+ 		 *
+ 		 *  Framebuffer bit depth [hint](@ref GLFW_ACCUM_BLUE_BITS).
+ 		 */
 		eAccumBlueBits			= GLFW_ACCUM_BLUE_BITS,
 
-		// Framebuffer bit depth hint
+		/*! @brief Framebuffer bit depth hint.
+ 		 *
+ 		 *  Framebuffer bit depth [hint](@ref GLFW_ACCUM_ALPHA_BITS).
+ 		 */
 		eAccumAlphaBits			= GLFW_ACCUM_ALPHA_BITS,
 
-		// Framebuffer auxiliary buffer hint
+		/*! @brief Framebuffer auxiliary buffer hint.
+ 		 *
+ 		 *  Framebuffer auxiliary buffer [hint](@ref GLFW_AUX_BUFFERS).
+ 		 */
 		eAuxBuffers				= GLFW_AUX_BUFFERS,
 
-		// OpenGL stereoscopic rendering hint
+		/*! @brief OpenGL stereoscopic rendering hint.
+ 		 *
+ 		 *  OpenGL stereoscopic rendering [hint](@ref GLFW_STEREO).
+ 		 */
 		eStereo					= GLFW_STEREO,
 
-		// Framebuffer MSAA samples hint
+		/*! @brief Framebuffer MSAA samples hint.
+ 		 *
+ 		 *  Framebuffer MSAA samples [hint](@ref GLFW_SAMPLES).
+ 		 */
 		eSamples				= GLFW_SAMPLES,
 
-		// Framebuffer sRGB hint
+		/*! @brief Framebuffer sRGB hint.
+ 		 *
+ 		 *  Framebuffer sRGB [hint](@ref GLFW_SRGB_CAPABLE).
+ 		 */
 		eSrgbCapable			= GLFW_SRGB_CAPABLE,
 
-		// Monitor refresh rate hint
+		/*! @brief Monitor refresh rate hint.
+ 		 *
+ 		 *  Monitor refresh rate [hint](@ref GLFW_REFRESH_RATE).
+ 		 */
 		eRefreshRate			= GLFW_REFRESH_RATE,
 
-		// Framebuffer double buffering hint
+		/*! @brief Framebuffer double buffering hint.
+ 		 *
+ 		 *  Framebuffer double buffering [hint](@ref GLFW_DOUBLEBUFFER).
+ 		 */
 		eDoublebuffer			= GLFW_DOUBLEBUFFER,
 
-		// Context client API hint
+		/*! @brief Context client API hint and attribute.
+ 		 *
+ 		 *  Context client API [hint](@ref GLFW_CLIENT_API_hint) and
+ 		 *  [attribute](@ref GLFW_CLIENT_API_attrib).
+ 		 */
 		eClientApi 				= GLFW_CLIENT_API,
 
-		// Context client API major version hint
+		/*! @brief Context client API major version hint and attribute.
+ 		 *
+ 		 *  Context client API major version [hint](@ref GLFW_CONTEXT_VERSION_MAJOR_hint)
+ 		 *  and [attribute](@ref GLFW_CONTEXT_VERSION_MAJOR_attrib).
+ 		 */
 		eContextVersionMajor	= GLFW_CONTEXT_VERSION_MAJOR,
 
-		// Context client API minor version hint
+		/*! @brief Context client API minor version hint and attribute.
+ 		 *
+ 		 *  Context client API minor version [hint](@ref GLFW_CONTEXT_VERSION_MINOR_hint)
+ 		 *  and [attribute](@ref GLFW_CONTEXT_VERSION_MINOR_attrib).
+ 		 */
 		eContextVersionMinor	= GLFW_CONTEXT_VERSION_MINOR,
 
-		// Context client API revision number hint
+		/*! @brief Context client API revision number hint and attribute.
+ 		 *
+ 		 *  Context client API revision number
+ 		 *  [attribute](@ref GLFW_CONTEXT_REVISION_attrib).
+ 		 */
 		eContextRevision		= GLFW_CONTEXT_REVISION,
 
-		// Context robustness hint
+		/*! @brief Context robustness hint and attribute.
+ 		 *
+ 		 *  Context client API revision number [hint](@ref GLFW_CONTEXT_ROBUSTNESS_hint)
+ 		 *  and [attribute](@ref GLFW_CONTEXT_ROBUSTNESS_attrib).
+ 		 */
 		eContextRobustness		= GLFW_CONTEXT_ROBUSTNESS,
 
-		// OpenGL forward-compatibility hint
+		/*! @brief OpenGL forward-compatibility hint and attribute.
+ 		 *
+ 		 *  OpenGL forward-compatibility [hint](@ref GLFW_OPENGL_FORWARD_COMPAT_hint)
+ 		 *  and [attribute](@ref GLFW_OPENGL_FORWARD_COMPAT_attrib).
+ 		 */
 		eOpenglForwardCompat	= GLFW_OPENGL_FORWARD_COMPAT,
 
-		// Debug mode context hint
+		/*! @brief Debug mode context hint and attribute.
+ 		 *
+ 		 *  Debug mode context [hint](@ref GLFW_OPENGL_DEBUG_CONTEXT_hint) and
+ 		 *  [attribute](@ref GLFW_OPENGL_DEBUG_CONTEXT_attrib).
+ 		 */
 		eOpenglDebugContext		= GLFW_OPENGL_DEBUG_CONTEXT,
 
-		// OpenGL profile hint
+		/*! @brief OpenGL profile hint and attribute.
+ 		 *
+ 		 *  OpenGL profile [hint](@ref GLFW_OPENGL_PROFILE_hint) and
+ 		 *  [attribute](@ref GLFW_OPENGL_PROFILE_attrib).
+ 		 */
 		eOpenglProfile			= GLFW_OPENGL_PROFILE,
 
-		// Context flush-on-release hint
+		/*! @brief Context flush-on-release hint and attribute.
+ 		 *
+ 		 *  Context flush-on-release [hint](@ref GLFW_CONTEXT_RELEASE_BEHAVIOR_hint) and
+ 		 *  [attribute](@ref GLFW_CONTEXT_RELEASE_BEHAVIOR_attrib).
+ 		 */
 		eContextReleaseBehavior = GLFW_CONTEXT_RELEASE_BEHAVIOR,
 
-		// Context error suppression hint
+		/*! @brief Context error suppression hint and attribute.
+ 		 *
+ 		 *  Context error suppression [hint](@ref GLFW_CONTEXT_NO_ERROR_hint) and
+ 		 *  [attribute](@ref GLFW_CONTEXT_NO_ERROR_attrib).
+ 		 */
 		eContextNoError			= GLFW_CONTEXT_NO_ERROR,
 
-		// Context creation API hint
+		/*! @brief Context creation API hint and attribute.
+ 		 *
+ 		 *  Context creation API [hint](@ref GLFW_CONTEXT_CREATION_API_hint) and
+ 		 *  [attribute](@ref GLFW_CONTEXT_CREATION_API_attrib).
+ 		 */
 		eContextCreationApi		= GLFW_CONTEXT_CREATION_API,
 
-		// Window content area scaling window
+		/*! @brief Window content area scaling window
+ 		 *  [window hint](@ref GLFW_SCALE_TO_MONITOR).
+ 		 */
 		eScaleToMonitor			= GLFW_SCALE_TO_MONITOR,
 
-		// macOS specific
+		/*! @brief macOS specific
+ 		 *  [window hint](@ref GLFW_COCOA_RETINA_FRAMEBUFFER_hint).
+ 		 */
 		eCocoaRetinaFramebuffer = GLFW_COCOA_RETINA_FRAMEBUFFER,
 
-		// macOS specific
+		/*! @brief macOS specific
+ 		 *  [window hint](@ref GLFW_COCOA_FRAME_NAME_hint).
+ 		 */
 		eCocoaFrameName			= GLFW_COCOA_FRAME_NAME,
 
-		// macOS specific
+		/*! @brief macOS specific
+ 		 *  [window hint](@ref GLFW_COCOA_GRAPHICS_SWITCHING_hint).
+ 		 */
 		eCocoaGraphicsSwitching = GLFW_COCOA_GRAPHICS_SWITCHING,
 
-		// X11 specific
+		/*! @brief X11 specific
+ 		 *  [window hint](@ref GLFW_X11_CLASS_NAME_hint).
+ 		 */
 		eX11ClassName			= GLFW_X11_CLASS_NAME,
 
-		// X11 specific
+		/*! @brief X11 specific
+ 		 *  [window hint](@ref GLFW_X11_INSTANCE_NAME_hint).
+ 		 */
 		eX11InstanceName		= GLFW_X11_INSTANCE_NAME
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const WindowHint value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const WindowHint value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1162,77 +1656,165 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Attributes related to window creation
+	/*! @addtogroup window
+	 */
 	enum class WindowAttribute : EnumSize
 	{
-		// Input focus window attribute
+		/*! @brief Input focus window hint and attribute
+ 		 *
+ 		 *  Input focus [window hint](@ref GLFW_FOCUSED_hint) or
+ 		 *  [window attribute](@ref GLFW_FOCUSED_attrib).
+ 		 */
 		eFocused   	  			= GLFW_FOCUSED,
 
-		// Window iconification window attribute
+		/*! @brief Window iconification window attribute
+ 		 *
+ 		 *  Window iconification [window attribute](@ref GLFW_ICONIFIED_attrib).
+ 		 */
 		eIconified				= GLFW_ICONIFIED,
 
-		// Window resize-ability window attribute
+		/*! @brief Window resize-ability window hint and attribute
+ 		 *
+ 		 *  Window resize-ability [window hint](@ref GLFW_RESIZABLE_hint) and
+ 		 *  [window attribute](@ref GLFW_RESIZABLE_attrib).
+ 		 */
 		eResizable 	  			= GLFW_RESIZABLE,
 
-		// Window visibility window attribute
+		/*! @brief Window visibility window hint and attribute
+ 		 *
+ 		 *  Window visibility [window hint](@ref GLFW_VISIBLE_hint) and
+ 		 *  [window attribute](@ref GLFW_VISIBLE_attrib).
+ 		 */
 		eVisible   	  			= GLFW_VISIBLE,
 
-		// Window decoration window attribute
+		/*! @brief Window decoration window hint and attribute
+ 		 *
+ 		 *  Window decoration [window hint](@ref GLFW_DECORATED_hint) and
+ 		 *  [window attribute](@ref GLFW_DECORATED_attrib).
+ 		 */
 		eDecorated 	  			= GLFW_DECORATED,
 
-		// Window auto-iconification window attribute
+		/*! @brief Window auto-iconification window hint and attribute
+ 		 *
+ 		 *  Window auto-iconification [window hint](@ref GLFW_AUTO_ICONIFY_hint) and
+ 		 *  [window attribute](@ref GLFW_AUTO_ICONIFY_attrib).
+ 		 */
 		eAutoIconify  			= GLFW_AUTO_ICONIFY,
 
-		// Window decoration window attribute
+		/*! @brief Window decoration window hint and attribute
+ 		 *
+ 		 *  Window decoration [window hint](@ref GLFW_FLOATING_hint) and
+ 		 *  [window attribute](@ref GLFW_FLOATING_attrib).
+ 		 */
 		eFloating 	  			= GLFW_FLOATING,
 
-		// Window maximization window attribute
+		/*! @brief Window maximization window hint and attribute
+ 		 *
+ 		 *  Window maximization [window hint](@ref GLFW_MAXIMIZED_hint) and
+ 		 *  [window attribute](@ref GLFW_MAXIMIZED_attrib).
+ 		 */
 		eMaximized    			= GLFW_MAXIMIZED,
 
-		// Window framebuffer transparency attribute
+		/*! @brief Window framebuffer transparency hint and attribute
+ 		 *
+ 		 *  Window framebuffer transparency
+ 		 *  [window hint](@ref GLFW_TRANSPARENT_FRAMEBUFFER_hint) and
+ 		 *  [window attribute](@ref GLFW_TRANSPARENT_FRAMEBUFFER_attrib).
+ 		 */
 		eTransparentFramebuffer = GLFW_TRANSPARENT_FRAMEBUFFER,
 
-		// Mouse cursor hover window attribute
+		/*! @brief Mouse cursor hover window attribute.
+ 		 *
+ 		 *  Mouse cursor hover [window attribute](@ref GLFW_HOVERED_attrib).
+ 		 */
 		eHovered				= GLFW_HOVERED,
 
-		// Input focus on calling show window attribute
+		/*! @brief Input focus on calling show window hint and attribute
+ 		 *
+ 		 *  Input focus [window hint](@ref GLFW_FOCUS_ON_SHOW_hint) or
+ 		 *  [window attribute](@ref GLFW_FOCUS_ON_SHOW_attrib).
+ 		 */
 		eFocusOnShow			= GLFW_FOCUS_ON_SHOW,
 
-		// Context client API attribute
+		/*! @brief Context client API hint and attribute.
+ 		 *
+ 		 *  Context client API [hint](@ref GLFW_CLIENT_API_hint) and
+ 		 *  [attribute](@ref GLFW_CLIENT_API_attrib).
+ 		 */
 		eClientApi 				= GLFW_CLIENT_API,
 
-		// Context client API major version attribute
+		/*! @brief Context client API major version hint and attribute.
+ 		 *
+ 		 *  Context client API major version [hint](@ref GLFW_CONTEXT_VERSION_MAJOR_hint)
+ 		 *  and [attribute](@ref GLFW_CONTEXT_VERSION_MAJOR_attrib).
+ 		 */
 		eContextVersionMajor	= GLFW_CONTEXT_VERSION_MAJOR,
 
-		// Context client API minor version attribute
+		/*! @brief Context client API minor version hint and attribute.
+ 		 *
+ 		 *  Context client API minor version [hint](@ref GLFW_CONTEXT_VERSION_MINOR_hint)
+ 		 *  and [attribute](@ref GLFW_CONTEXT_VERSION_MINOR_attrib).
+ 		 */
 		eContextVersionMinor	= GLFW_CONTEXT_VERSION_MINOR,
 
-		// Context client API revision number attribute
+		/*! @brief Context client API revision number hint and attribute.
+ 		 *
+ 		 *  Context client API revision number
+ 		 *  [attribute](@ref GLFW_CONTEXT_REVISION_attrib).
+ 		 */
 		eContextRevision		= GLFW_CONTEXT_REVISION,
 
-		// Context robustness attribute
+		/*! @brief Context robustness hint and attribute.
+ 		 *
+ 		 *  Context client API revision number [hint](@ref GLFW_CONTEXT_ROBUSTNESS_hint)
+ 		 *  and [attribute](@ref GLFW_CONTEXT_ROBUSTNESS_attrib).
+ 		 */
 		eContextRobustness		= GLFW_CONTEXT_ROBUSTNESS,
 
-		// OpenGL forward-compatibility attribute
+		/*! @brief OpenGL forward-compatibility hint and attribute.
+ 		 *
+ 		 *  OpenGL forward-compatibility [hint](@ref GLFW_OPENGL_FORWARD_COMPAT_hint)
+ 		 *  and [attribute](@ref GLFW_OPENGL_FORWARD_COMPAT_attrib).
+ 		 */
 		eOpenglForwardCompat	= GLFW_OPENGL_FORWARD_COMPAT,
 
-		// Debug mode context attribute
+		/*! @brief Debug mode context hint and attribute.
+ 		 *
+ 		 *  Debug mode context [hint](@ref GLFW_OPENGL_DEBUG_CONTEXT_hint) and
+ 		 *  [attribute](@ref GLFW_OPENGL_DEBUG_CONTEXT_attrib).
+ 		 */
 		eOpenglDebugContext		= GLFW_OPENGL_DEBUG_CONTEXT,
 
-		// OpenGL profile attribute
+		/*! @brief OpenGL profile hint and attribute.
+ 		 *
+ 		 *  OpenGL profile [hint](@ref GLFW_OPENGL_PROFILE_hint) and
+ 		 *  [attribute](@ref GLFW_OPENGL_PROFILE_attrib).
+ 		 */
 		eOpenglProfile			= GLFW_OPENGL_PROFILE,
 
-		// Context flush-on-release attribute
+		/*! @brief Context flush-on-release hint and attribute.
+ 		 *
+ 		 *  Context flush-on-release [hint](@ref GLFW_CONTEXT_RELEASE_BEHAVIOR_hint) and
+ 		 *  [attribute](@ref GLFW_CONTEXT_RELEASE_BEHAVIOR_attrib).
+ 		 */
 		eContextReleaseBehavior = GLFW_CONTEXT_RELEASE_BEHAVIOR,
 
-		// Context error suppression attribute
+		/*! @brief Context error suppression hint and attribute.
+ 		 *
+ 		 *  Context error suppression [hint](@ref GLFW_CONTEXT_NO_ERROR_hint) and
+ 		 *  [attribute](@ref GLFW_CONTEXT_NO_ERROR_attrib).
+ 		 */
 		eContextNoError			= GLFW_CONTEXT_NO_ERROR,
 
-		// Context creation API attribute
+		/*! @brief Context creation API hint and attribute.
+ 		 *
+ 		 *  Context creation API [hint](@ref GLFW_CONTEXT_CREATION_API_hint) and
+ 		 *  [attribute](@ref GLFW_CONTEXT_CREATION_API_attrib).
+ 		 */
 		eContextCreationApi		= GLFW_CONTEXT_CREATION_API
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const WindowAttribute value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const WindowAttribute value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1263,7 +1845,6 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Client APIs
 	enum class ClientApi : EnumSize
 	{
 		eNone 	  = GLFW_NO_API,
@@ -1271,7 +1852,7 @@ namespace GLFW_HPP_NAMESPACE
 		eOpenglEs = GLFW_OPENGL_ES_API
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const ClientApi value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const ClientApi value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1283,7 +1864,6 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Robustness strategy
 	enum class Robustness : EnumSize
 	{
 		eNone 				 = GLFW_NO_ROBUSTNESS,
@@ -1291,7 +1871,7 @@ namespace GLFW_HPP_NAMESPACE
 		eLoseContextOnReset  = GLFW_LOSE_CONTEXT_ON_RESET
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const Robustness value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Robustness value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1303,7 +1883,6 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// OpenGL profiles
 	enum class OpenglProfile : EnumSize
 	{
 		eAny 	= GLFW_OPENGL_ANY_PROFILE,
@@ -1311,7 +1890,7 @@ namespace GLFW_HPP_NAMESPACE
 		eCompat = GLFW_OPENGL_COMPAT_PROFILE
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const OpenglProfile value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const OpenglProfile value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1323,7 +1902,6 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Input modes
 	enum class InputMode : EnumSize
 	{
 		eCursor = GLFW_CURSOR,
@@ -1333,7 +1911,7 @@ namespace GLFW_HPP_NAMESPACE
 		eRawMouseMotion = GLFW_RAW_MOUSE_MOTION
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const InputMode value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const InputMode value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1347,7 +1925,6 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Cursor modes
 	enum class CursorMode : EnumSize
 	{
 		eNormal   = GLFW_CURSOR_NORMAL,
@@ -1355,7 +1932,7 @@ namespace GLFW_HPP_NAMESPACE
 		eDisabled = GLFW_CURSOR_DISABLED
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const CursorMode value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const CursorMode value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1367,7 +1944,6 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Release behaviors
 	enum class ReleaseBehavior : EnumSize
 	{
 		eAny   = GLFW_ANY_RELEASE_BEHAVIOR,
@@ -1375,7 +1951,7 @@ namespace GLFW_HPP_NAMESPACE
 		eNone  = GLFW_RELEASE_BEHAVIOR_NONE
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const ReleaseBehavior value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const ReleaseBehavior value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1387,7 +1963,6 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Context creation APIs
 	enum class ContextApi : EnumSize
 	{
 		eNative = GLFW_NATIVE_CONTEXT_API,
@@ -1395,7 +1970,7 @@ namespace GLFW_HPP_NAMESPACE
 		eOsmesa = GLFW_OSMESA_CONTEXT_API
 	}; 
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const ContextApi value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const ContextApi value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1407,29 +1982,53 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Standard system cursor shapes
+	/*! @defgroup shapes Standard cursor shapes
+ 	 *  @brief Standard system cursor shapes.
+ 	 *
+ 	 *  See [standard cursor creation](@ref cursor_standard) for how these are used.
+ 	 *
+ 	 *  @ingroup input
+ 	 */
 	enum class CursorShape : EnumSize
 	{
-		// The regular arrow cursor shape
+		/*! @brief The regular arrow cursor shape.
+ 		 *
+ 		 *  The regular arrow cursor.
+ 		 */
 		eArrow 	   = GLFW_ARROW_CURSOR,
 
-		// The text input I-beam cursor shape
+		/*! @brief The text input I-beam cursor shape.
+ 		 *
+ 		 *  The text input I-beam cursor shape.
+ 		 */
 		eIbeam 	   = GLFW_IBEAM_CURSOR,
 
-		// The crosshair shape
+		/*! @brief The crosshair shape.
+ 		 *
+ 		 *  The crosshair shape.
+ 		 */
 		eCrosshair = GLFW_CROSSHAIR_CURSOR,
 
-		// The hand shape
+		/*! @brief The hand shape.
+ 		 *
+ 		 *  The hand shape.
+ 		 */
 		eHand 	   = GLFW_HAND_CURSOR,
 
-		// The horizontal resize arrow shape
+		/*! @brief The horizontal resize arrow shape.
+ 		 *
+ 		 *  The horizontal resize arrow shape.
+ 		 */
 		eHresize   = GLFW_HRESIZE_CURSOR,
 
-		// The vertical resize arrow shape
+		/*! @brief The vertical resize arrow shape.
+ 		 *
+ 		 *  The vertical resize arrow shape.
+ 		 */
 		eVresize   = GLFW_VRESIZE_CURSOR
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const CursorShape value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const CursorShape value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1444,38 +2043,47 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Connection events
-	enum class Connection : EnumSize
+	enum class Event : EnumSize
 	{
 		eConnected 	  = GLFW_CONNECTED,
 		eDisconnected = GLFW_DISCONNECTED
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const Connection value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Event value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
-		case Connection::eConnected:	return "Connected";
-		case Connection::eDisconnected:	return "Disconnected";
+		case Event::eConnected:	return "Connected";
+		case Event::eDisconnected:	return "Disconnected";
 		}
 
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
-	// Init hints
+	/*! @addtogroup init
+	 */
 	enum class InitHint : EnumSize
 	{
-		// Joystick hat buttons init hint
+		/*! @brief Joystick hat buttons init hint.
+ 		 *
+ 		 *  Joystick hat buttons [init hint](@ref GLFW_JOYSTICK_HAT_BUTTONS).
+ 		 */
 		eJoystickHatButtons  = GLFW_JOYSTICK_HAT_BUTTONS,
 
-		// macOS specific init hint
+		/*! @brief macOS specific init hint.
+ 		 *
+ 		 *  macOS specific [init hint](@ref GLFW_COCOA_CHDIR_RESOURCES_hint).
+ 		 */
 		eCocoaChdirResources = GLFW_COCOA_CHDIR_RESOURCES,
 
-		// macOS specific init hint
+		/*! @brief macOS specific init hint.
+ 		 *
+ 		 *  macOS specific [init hint](@ref GLFW_COCOA_MENUBAR_hint).
+ 		 */
 		eCocoaMenubar 		 = GLFW_COCOA_MENUBAR
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_STRING to_string(const InitHint value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const InitHint value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1486,6 +2094,1065 @@ namespace GLFW_HPP_NAMESPACE
 
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
+
+	// === Forward Declarations ===
+
+	/*! @brief Opaque monitor object.
+ 	 *
+ 	 *  Opaque monitor object.
+ 	 *
+ 	 *  @see @ref monitor_object
+ 	 *
+ 	 *  @since Added in version 3.0.
+ 	 *
+ 	 *  @ingroup monitor
+ 	 */
+	class Monitor;
+
+	/*! @brief Opaque window object.
+ 	 *
+ 	 *  Opaque window object.
+ 	 *
+ 	 *  @see @ref window_object
+ 	 *
+ 	 *  @since Added in version 3.0.
+ 	 *
+ 	 *  @ingroup window
+ 	 */
+	class Window;
+
+	/*! @brief Opaque cursor object.
+ 	 *
+ 	 *  Opaque cursor object.
+ 	 *
+ 	 *  @see @ref cursor_object
+ 	 *
+ 	 *  @since Added in version 3.1.
+ 	 *
+ 	 *  @ingroup input
+ 	 */
+	class Cursor;
+
+	// === Function Types ===
+
+	/*! @brief Client API function pointer type.
+ 	 *
+ 	 *  Generic function pointer used for returning client API function pointers
+ 	 *  without forcing a cast from a regular pointer.
+ 	 *
+ 	 *  @sa @ref context_glext
+ 	 *  @sa @ref glfwGetProcAddress
+ 	 *
+ 	 *  @since Added in version 3.0.
+ 	 *
+ 	 *  @ingroup context
+ 	 */
+	using Glproc = void (*)(void);
+
+	/*! @brief Vulkan API function pointer type.
+ 	 *
+ 	 *  Generic function pointer used for returning Vulkan API function pointers
+ 	 *  without forcing a cast from a regular pointer.
+ 	 *
+ 	 *  @sa @ref vulkan_proc
+ 	 *  @sa @ref glfwGetInstanceProcAddress
+ 	 *
+ 	 *  @since Added in version 3.2.
+ 	 *
+ 	 *  @ingroup vulkan
+ 	 */
+	using Vkproc = void (*)(void);
+
+	/*! @brief The function pointer type for error callbacks.
+ 	 *
+ 	 *  This is the function pointer type for error callbacks.  An error callback
+ 	 *  function has the following signature:
+ 	 *  @code
+ 	 *  void callback_name(GLFW_HPP_NAMESPACE::Error error_code, GLFW_HPP_STRING description)
+ 	 *  @endcode
+ 	 *
+ 	 *  @param[in] error_code An [error code](@ref errors).  Future releases may add
+ 	 *  more error codes.
+ 	 *  @param[in] description A UTF-8 encoded string describing the error.
+ 	 *
+ 	 *  @pointer_lifetime The error description string is valid until the callback
+ 	 *  function returns.
+ 	 *
+ 	 *  @sa @ref error_handling
+ 	 *  @sa @ref glfwSetErrorCallback
+ 	 *
+ 	 *  @since Added in version 3.0.
+ 	 *
+ 	 *  @ingroup init
+ 	 */
+	using Errorfun = void (*)(Error, GLFW_HPP_STRING);
+
+	/*! @brief The function pointer type for window position callbacks.
+ 	 *
+ 	 *  This is the function pointer type for window position callbacks.  A window
+ 	 *  position callback function has the following signature:
+ 	 *  @code
+ 	 *  void callback_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::ScreenCoordinate xpos, GLFW_HPP_NAMESPACE::ScreenCoordinate ypos)
+ 	 *  @endcode
+ 	 *
+ 	 *  @param[in] window The window that was moved.
+ 	 *  @param[in] xpos The new x-coordinate, in screen coordinates, of the
+ 	 *  upper-left corner of the content area of the window.
+ 	 *  @param[in] ypos The new y-coordinate, in screen coordinates, of the
+ 	 *  upper-left corner of the content area of the window.
+ 	 *
+ 	 *  @sa @ref window_pos
+ 	 *  @sa @ref glfwSetWindowPosCallback
+ 	 *
+ 	 *  @since Added in version 3.0.
+ 	 *
+ 	 *  @ingroup window
+ 	 */
+	using Windowposfun = void (*)(Window&, ScreenCoordinate, ScreenCoordinate);
+
+	/*! @brief The function pointer type for window size callbacks.
+ 	 *
+ 	 *  This is the function pointer type for window size callbacks.  A window size
+ 	 *  callback function has the following signature:
+ 	 *  @code
+ 	 *  void callback_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::ScreenCoordinate width, GLFW_HPP_NAMESPACE::ScreenCoordinate height)
+ 	 *  @endcode
+ 	 *
+ 	 *  @param[in] window The window that was resized.
+ 	 *  @param[in] width The new width, in screen coordinates, of the window.
+ 	 *  @param[in] height The new height, in screen coordinates, of the window.
+ 	 *
+ 	 *  @sa @ref window_size
+ 	 *  @sa @ref glfwSetWindowSizeCallback
+ 	 *
+ 	 *  @since Added in version 1.0.
+ 	 *  @glfw3 Added window handle parameter.
+ 	 *
+ 	 *  @ingroup window
+ 	 */
+	using Windowsizefun = void (*)(Window&, ScreenCoordinate, ScreenCoordinate);
+
+	/*! @brief The function pointer type for window close callbacks.
+	 *
+	 *  This is the function pointer type for window close callbacks.  A window
+	 *  close callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window)
+	 *  @endcode
+	 *
+	 *  @param[in] window The window that the user attempted to close.
+	 *
+	 *  @sa @ref window_close
+	 *  @sa @ref glfwSetWindowCloseCallback
+	 *
+	 *  @since Added in version 2.5.
+	 *  @glfw3 Added window handle parameter.
+	 *
+	 *  @ingroup window
+	 */
+	using Windowclosefun = void (*)(Window&);
+
+	/*! @brief The function pointer type for window content refresh callbacks.
+	 *
+	 *  This is the function pointer type for window content refresh callbacks.
+	 *  A window content refresh callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window);
+	 *  @endcode
+	 *
+	 *  @param[in] window The window whose content needs to be refreshed.
+	 *
+	 *  @sa @ref window_refresh
+	 *  @sa @ref glfwSetWindowRefreshCallback
+	 *
+	 *  @since Added in version 2.5.
+	 *  @glfw3 Added window handle parameter.
+	 *
+	 *  @ingroup window
+	 */
+	using Windowrefreshfun = void (*)(Window&);
+
+	/*! @brief The function pointer type for window focus callbacks.
+	 *
+	 *  This is the function pointer type for window focus callbacks.  A window
+	 *  focus callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Bool focused)
+	 *  @endcode
+	 *
+	 *  @param[in] window The window that gained or lost input focus.
+	 *  @param[in] focused `GLFW_HPP_NAMESPACE::Bool::eTrue` if the window was given input focus, or
+	 *  `GLFW_HPP_NAMESPACE::Bool::eFalse` if it lost it.
+	 *
+	 *  @sa @ref window_focus
+	 *  @sa @ref glfwSetWindowFocusCallback
+	 *
+	 *  @since Added in version 3.0.
+	 *
+	 *  @ingroup window
+	 */
+	using Windowfocusfun = void (*)(Window&, Bool);
+
+	/*! @brief The function pointer type for window iconify callbacks.
+	 *
+	 *  This is the function pointer type for window iconify callbacks.  A window
+	 *  iconify callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Bool iconified)
+	 *  @endcode
+	 *
+	 *  @param[in] window The window that was iconified or restored.
+	 *  @param[in] iconified `GLFW_HPP_NAMESPACE::Bool::eTrue` if the window was iconified, or
+	 *  `GLFW_HPP_NAMESPACE::Bool::eFalse` if it was restored.
+	 *
+	 *  @sa @ref window_iconify
+	 *  @sa @ref glfwSetWindowIconifyCallback
+	 *
+	 *  @since Added in version 3.0.
+	 *
+	 *  @ingroup window
+	 */
+	using Windowiconifyfun = void (*)(Window&, Bool);
+
+	/*! @brief The function pointer type for window maximize callbacks.
+	 *
+	 *  This is the function pointer type for window maximize callbacks.  A window
+	 *  maximize callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Bool maximized)
+	 *  @endcode
+	 *
+	 *  @param[in] window The window that was maximized or restored.
+	 *  @param[in] maximized `GLFW_HPP_NAMESPACE::Bool::eTrue` if the window was maximized, or
+	 *  `GLFW_HPP_NAMESPACE::Bool::eFalse` if it was restored.
+	 *
+	 *  @sa @ref window_maximize
+	 *  @sa glfwSetWindowMaximizeCallback
+	 *
+	 *  @since Added in version 3.3.
+	 *
+	 *  @ingroup window
+	 */
+	using Windowmaximizefun = void (*)(Window&, Bool);
+
+	/*! @brief The function pointer type for framebuffer size callbacks.
+	 *
+	 *  This is the function pointer type for framebuffer size callbacks.
+	 *  A framebuffer size callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Pixel width, GLFW_HPP_NAMESPACE::Pixel height)
+	 *  @endcode
+	 *
+	 *  @param[in] window The window whose framebuffer was resized.
+	 *  @param[in] width The new width, in pixels, of the framebuffer.
+	 *  @param[in] height The new height, in pixels, of the framebuffer.
+	 *
+	 *  @sa @ref window_fbsize
+	 *  @sa @ref glfwSetFramebufferSizeCallback
+	 *
+	 *  @since Added in version 3.0.
+	 *
+	 *  @ingroup window
+	 */
+	using Framebuffersizefun = void (*)(Window&, Pixel, Pixel);
+
+	/*! @brief The function pointer type for window content scale callbacks.
+	 *
+	 *  This is the function pointer type for window content scale callbacks.
+	 *  A window content scale callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::ContentScale xscale, GLFW_HPP_NAMESPACE::ContentScale yscale)
+	 *  @endcode
+	 *
+	 *  @param[in] window The window whose content scale changed.
+	 *  @param[in] xscale The new x-axis content scale of the window.
+	 *  @param[in] yscale The new y-axis content scale of the window.
+	 *
+	 *  @sa @ref window_scale
+	 *  @sa @ref glfwSetWindowContentScaleCallback
+	 *
+	 *  @since Added in version 3.3.
+	 *
+	 *  @ingroup window
+	 */
+	using Windowcontentscalefun = void (*)(Window&, ContentScale, ContentScale);
+
+	/*! @brief The function pointer type for mouse button callbacks.
+	 *
+	 *  This is the function pointer type for mouse button callback functions.
+	 *  A mouse button callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::MouseButton button, GLFW_HPP_NAMESPACE::Action action, GLFW_HPP_NAMESPACE::ModFlags mods)
+	 *  @endcode
+	 *
+	 *  @param[in] window The window that received the event.
+	 *  @param[in] button The [mouse button](@ref buttons) that was pressed or
+	 *  released.
+	 *  @param[in] action One of `GLFW_HPP_NAMESPACE::Action::ePress` or `GLFW_HPP_NAMESPACE::Action::eRelease`.  Future releases
+	 *  may add more actions.
+	 *  @param[in] mods Bit field describing which [modifier keys](@ref mods) were
+	 *  held down.
+	 *
+	 *  @sa @ref input_mouse_button
+	 *  @sa @ref glfwSetMouseButtonCallback
+	 *
+	 *  @since Added in version 1.0.
+	 *  @glfw3 Added window handle and modifier mask parameters.
+	 *
+	 *  @ingroup input
+	 */
+	using Mousebuttonfun = void (*)(Window&, MouseButton, Action, ModFlags);
+
+	/*! @brief The function pointer type for cursor position callbacks.
+	 *
+	 *  This is the function pointer type for cursor position callbacks.  A cursor
+	 *  position callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::CursorCoordinate xpos, GLFW_HPP_NAMESPACE::CursorCoordinate ypos);
+	 *  @endcode
+	 *
+	 *  @param[in] window The window that received the event.
+	 *  @param[in] xpos The new cursor x-coordinate, relative to the left edge of
+	 *  the content area.
+	 *  @param[in] ypos The new cursor y-coordinate, relative to the top edge of the
+	 *  content area.
+	 *
+	 *  @sa @ref cursor_pos
+	 *  @sa @ref glfwSetCursorPosCallback
+	 *
+	 *  @since Added in version 3.0.  Replaces `GLFWmouseposfun`.
+	 *
+	 *  @ingroup input
+	 */
+	using Cursorposfun = void (*)(Window&, CursorCoordinate, CursorCoordinate);
+
+	/*! @brief The function pointer type for cursor enter/leave callbacks.
+	 *
+	 *  This is the function pointer type for cursor enter/leave callbacks.
+	 *  A cursor enter/leave callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Bool entered)
+	 *  @endcode
+	 *
+	 *  @param[in] window The window that received the event.
+	 *  @param[in] entered `GLFW_HPP_NAMESPACE::Bool::eTrue` if the cursor entered the window's content
+	 *  area, or `GLFW_HPP_NAMESPACE::Bool::eFalse` if it left it.
+	 *
+	 *  @sa @ref cursor_enter
+	 *  @sa @ref glfwSetCursorEnterCallback
+	 *
+	 *  @since Added in version 3.0.
+	 *
+	 *  @ingroup input
+	 */
+	using Cursorenterfun = void (*)(Window&, Bool);
+
+	/*! @brief The function pointer type for scroll callbacks.
+	 *
+	 *  This is the function pointer type for scroll callbacks.  A scroll callback
+	 *  function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Offset xoffset, GLFW_HPP_NAMESPACE::Offset yoffset)
+	 *  @endcode
+	 *
+	 *  @param[in] window The window that received the event.
+	 *  @param[in] xoffset The scroll offset along the x-axis.
+	 *  @param[in] yoffset The scroll offset along the y-axis.
+	 *
+	 *  @sa @ref scrolling
+	 *  @sa @ref glfwSetScrollCallback
+	 *
+	 *  @since Added in version 3.0.  Replaces `GLFWmousewheelfun`.
+	 *
+	 *  @ingroup input
+	 */
+	using Scrollfun = void (*)(Window&, Offset, Offset);
+
+	/*! @brief The function pointer type for keyboard key callbacks.
+	 *
+	 *  This is the function pointer type for keyboard key callbacks.  A keyboard
+	 *  key callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Key key, GLFW_HPP_NAMESPACE::Scancode scancode, GLFW_HPP_NAMESPACE::Action action, GLFW_HPP_NAMESPACE::ModFlags mods)
+	 *  @endcode
+	 *
+	 *  @param[in] window The window that received the event.
+	 *  @param[in] key The [keyboard key](@ref keys) that was pressed or released.
+	 *  @param[in] scancode The system-specific scancode of the key.
+	 *  @param[in] action `GLFW_HPP_NAMESPACE::Action::ePress`, `GLFW_HPP_NAMESPACE::Action::eRelease` or `GLFW_HPP_NAMESPACE::Action::eRepeat`.  Future
+	 *  releases may add more actions.
+	 *  @param[in] mods Bit field describing which [modifier keys](@ref mods) were
+	 *  held down.
+	 *
+	 *  @sa @ref input_key
+	 *  @sa @ref glfwSetKeyCallback
+	 *
+	 *  @since Added in version 1.0.
+	 *  @glfw3 Added window handle, scancode and modifier mask parameters.
+	 *
+	 *  @ingroup input
+	 */
+	using Keyfun = void (*)(Window&, Key, Scancode, Action, ModFlags);
+
+	/*! @brief The function pointer type for Unicode character callbacks.
+	 *
+	 *  This is the function pointer type for Unicode character callbacks.
+	 *  A Unicode character callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Codepoint codepoint)
+	 *  @endcode
+	 *
+	 *  @param[in] window The window that received the event.
+	 *  @param[in] codepoint The Unicode code point of the character.
+	 *
+	 *  @sa @ref input_char
+	 *  @sa @ref glfwSetCharCallback
+	 *
+	 *  @since Added in version 2.4.
+	 *  @glfw3 Added window handle parameter.
+	 *
+	 *  @ingroup input
+	 */
+	using Charfun = void (*)(Window&, Codepoint);
+
+	/*! @brief The function pointer type for Unicode character with modifiers
+	 *  callbacks.
+	 *
+	 *  This is the function pointer type for Unicode character with modifiers
+	 *  callbacks.  It is called for each input character, regardless of what
+	 *  modifier keys are held down.  A Unicode character with modifiers callback
+	 *  function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Codepoint codepoint, GLFW_HPP_NAMESPACE::ModFlags mods)
+	 *  @endcode
+	 *
+	 *  @param[in] window The window that received the event.
+	 *  @param[in] codepoint The Unicode code point of the character.
+	 *  @param[in] mods Bit field describing which [modifier keys](@ref mods) were
+	 *  held down.
+	 *
+	 *  @sa @ref input_char
+	 *  @sa @ref glfwSetCharModsCallback
+	 *
+	 *  @deprecated Scheduled for removal in version 4.0.
+	 *
+	 *  @since Added in version 3.1.
+	 *
+	 *  @ingroup input
+	 */
+	using Charmodsfun = void (*)(Window&, Codepoint, ModFlags);
+
+	/*! @brief The function pointer type for path drop callbacks.
+	 *
+	 *  This is the function pointer type for path drop callbacks.  A path drop
+	 *  callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Count path_count, GLFW_HPP_NAMESPACE::GLFW_HPP_STRING paths[])
+	 *  @endcode
+	 *
+	 *  @param[in] window The window that received the event.
+	 *  @param[in] path_count The number of dropped paths.
+	 *  @param[in] paths The UTF-8 encoded file and/or directory path names.
+	 *
+	 *  @pointer_lifetime The path array and its strings are valid until the
+	 *  callback function returns.
+	 *
+	 *  @sa @ref path_drop
+	 *  @sa @ref glfwSetDropCallback
+	 *
+	 *  @since Added in version 3.1.
+	 *
+	 *  @ingroup input
+	 */
+	using Dropfun = void (*)(Window&, Count, GLFW_HPP_STRING[]);
+
+	/*! @brief The function pointer type for monitor configuration callbacks.
+	 *
+	 *  This is the function pointer type for monitor configuration callbacks.
+	 *  A monitor callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Monitor& monitor, GLFW_HPP_NAMESPACE::Event event)
+	 *  @endcode
+	 *
+	 *  @param[in] monitor The monitor that was connected or disconnected.
+	 *  @param[in] event One of `GLFW_HPP_NAMESPACE::Event::eConnected` or `GLFW_HPP_NAMESPACE::Event::eDisconnected`.  Future
+	 *  releases may add more events.
+	 *
+	 *  @sa @ref monitor_event
+	 *  @sa @ref glfwSetMonitorCallback
+	 *
+	 *  @since Added in version 3.0.
+	 *
+	 *  @ingroup monitor
+	 */
+	using Monitorfun = void (*)(Monitor&, Event);
+
+	/*! @brief The function pointer type for joystick configuration callbacks.
+	 *
+	 *  This is the function pointer type for joystick configuration callbacks.
+	 *  A joystick configuration callback function has the following signature:
+	 *  @code
+	 *  void function_name(GLFW_HPP_NAMESPACE::Joystick jid, GLFW_HPP_NAMESPACE::Event event)
+	 *  @endcode
+	 *
+	 *  @param[in] jid The joystick that was connected or disconnected.
+	 *  @param[in] event One of `GLFW_HPP_NAMESPACE::Event::eConnected` or `GLFW_HPP_NAMESPACE::Event::eDisconnected`.  Future
+	 *  releases may add more events.
+	 *
+	 *  @sa @ref joystick_event
+	 *  @sa @ref glfwSetJoystickCallback
+	 *
+	 *  @since Added in version 3.2.
+	 *
+	 *  @ingroup input
+	 */
+	using Joystickfun = void (*)(Joystick, Event);
+
+	// === Structures ===
+
+	/*! @brief Video mode type.
+	 *
+	 *  This describes a single video mode.
+	 *
+	 *  @sa @ref monitor_modes
+	 *  @sa @ref glfwGetVideoMode
+	 *  @sa @ref glfwGetVideoModes
+	 *
+	 *  @since Added in version 1.0.
+	 *  @glfw3 Added refresh rate member.
+	 *
+	 *  @ingroup monitor
+	 */
+	struct Vidmode
+	{
+		/*! The width, in screen coordinates, of the video mode.
+		 */
+		ScreenCoordinate width;
+		/*! The height, in screen coordinates, of the video mode.
+		 */
+		ScreenCoordinate height;
+		/*! The bit depth of the red channel of the video mode.
+		 */
+		BitDepth redBits;
+		/*! The bit depth of the green channel of the video mode.
+		 */
+		BitDepth greenBits;
+		/*! The bit depth of the blue channel of the video mode.
+		 */
+		BitDepth blueBits;
+		/*! The refresh rate, in Hz, of the video mode.
+		 */
+		Hz refreshRate;
+	};
+
+	/*! @brief Gamma ramp.
+	 *
+	 *  This describes the gamma ramp for a monitor.
+	 *
+	 *  @sa @ref monitor_gamma
+	 *  @sa @ref glfwGetGammaRamp
+	 *  @sa @ref glfwSetGammaRamp
+	 *
+	 *  @since Added in version 3.0.
+	 *
+	 *  @ingroup monitor
+	 */
+	struct Gammaramp
+	{
+		/*! An array of value describing the response of the red channel.
+		 */
+		Response* red;
+		/*! An array of value describing the response of the green channel.
+		 */
+		Response* green;
+		/*! An array of value describing the response of the blue channel.
+		 */
+		Response* blue;
+		/*! The number of elements in each array.
+		 */
+		ArraySize size;
+	};
+
+	/*! @brief Image data.
+	 *
+	 *  This describes a single 2D image.  See the documentation for each related
+	 *  function what the expected pixel format is.
+	 *
+	 *  @sa @ref cursor_custom
+	 *  @sa @ref window_icon
+	 *
+	 *  @since Added in version 2.1.
+	 *  @glfw3 Removed format and bytes-per-pixel members.
+	 *
+	 *  @ingroup window
+	 */
+	struct Image
+	{
+		/*! The width, in pixels, of this image.
+		 */
+		Pixel width;
+		/*! The height, in pixels, of this image.
+		 */
+		Pixel height;
+		/*! The pixel data of this image, arranged left-to-right, top-to-bottom.
+		 */
+		PixelData pixels;
+	};
+
+	/*! @brief Gamepad input state
+	 *
+	 *  This describes the input state of a gamepad.
+	 *
+	 *  @sa @ref gamepad
+	 *  @sa @ref glfwGetGamepadState
+	 *
+	 *  @since Added in version 3.3.
+	 *
+	 *  @ingroup input
+	 */
+	struct Gamepadstate
+	{
+		/*! The states of each [gamepad button](@ref gamepad_buttons), `GLFW_HPP_NAMESPACE::SmallAction::ePress`
+		 *  or `GLFW_HPP_NAMESPACE::SmallAction::eRelease`.
+		 */
+		SmallAction buttons[15];
+		/*! The states of each [gamepad axis](@ref gamepad_axes), in the range -1.0
+		 *  to 1.0 inclusive.
+		 */
+		GamepadAxisState axes[6];
+	};
+
+	// === API Functions ===
+
+	/*! @brief Initializes the GLFW library.
+	 *
+	 *  This function initializes the GLFW library.  Before most GLFW functions can
+	 *  be used, GLFW must be initialized, and before an application terminates GLFW
+	 *  should be terminated in order to free any resources allocated during or
+	 *  after initialization.
+	 *
+	 *  If this function fails, it calls @ref glfwTerminate before returning.  If it
+	 *  succeeds, you should call @ref glfwTerminate before the application exits.
+	 *
+	 *  Additional calls to this function after successful initialization but before
+	 *  termination will return `GLFW_HPP_NAMESPACE::Bool::eTrue` immediately.
+	 *
+	 *  @return `GLFW_HPP_NAMESPACE::Bool::eTrue` if successful, or `GLFW_HPP_NAMESPACE::Bool::eFalse` if an
+	 *  [error](@ref error_handling) occurred.
+	 *
+	 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::ePlatform.
+	 *
+	 *  @remark @macos This function will change the current directory of the
+	 *  application to the `Contents/Resources` subdirectory of the application's
+	 *  bundle, if present.  This can be disabled with the @ref
+	 *  GLFW_HPP_NAMESPACE::InitHint::eCocoaChdirResources init hint.
+	 *
+	 *  @remark @x11 This function will set the `LC_CTYPE` category of the
+	 *  application locale according to the current environment if that category is
+	 *  still "C".  This is because the "C" locale breaks Unicode text input.
+	 *
+	 *  @thread_safety This function must only be called from the main thread.
+	 *
+	 *  @sa @ref intro_init
+	 *  @sa @ref glfwTerminate
+	 *
+	 *  @since Added in version 1.0.
+	 *
+	 *  @ingroup init
+	 */
+	GLFW_HPP_INLINE Bool Init() GLFW_HPP_NOEXCEPT
+	{
+		return static_cast<Bool>(glfwInit());
+	}
+
+	/*! @brief Terminates the GLFW library.
+	 *
+	 *  This function destroys all remaining windows and cursors, restores any
+	 *  modified gamma ramps and frees any other allocated resources.  Once this
+	 *  function is called, you must again call @ref glfwInit successfully before
+	 *  you will be able to use most GLFW functions.
+	 *
+	 *  If GLFW has been successfully initialized, this function should be called
+	 *  before the application exits.  If initialization fails, there is no need to
+	 *  call this function, as it is called by @ref glfwInit before it returns
+	 *  failure.
+	 *
+	 *  This function has no effect if GLFW is not initialized.
+	 *
+	 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::ePlatform.
+	 *
+	 *  @remark This function may be called before @ref glfwInit.
+	 *
+	 *  @warning The contexts of any remaining windows must not be current on any
+	 *  other thread when this function is called.
+	 *
+	 *  @reentrancy This function must not be called from a callback.
+	 *
+	 *  @thread_safety This function must only be called from the main thread.
+	 *
+	 *  @sa @ref intro_init
+	 *  @sa @ref glfwInit
+	 *
+	 *  @since Added in version 1.0.
+	 *
+	 *  @ingroup init
+	 */
+	GLFW_HPP_INLINE void Terminate() GLFW_HPP_NOEXCEPT
+	{
+		glfwTerminate();
+	};
+
+	/*! @brief Sets the specified init hint to the desired value.
+	 *
+	 *  This function sets hints for the next initialization of GLFW.
+	 *
+	 *  The values you set hints to are never reset by GLFW, but they only take
+	 *  effect during initialization.  Once GLFW has been initialized, any values
+	 *  you set will be ignored until the library is terminated and initialized
+	 *  again.
+	 *
+	 *  Some hints are platform specific.  These may be set on any platform but they
+	 *  will only affect their specific platform.  Other platforms will ignore them.
+	 *  Setting these hints requires no platform specific headers or functions.
+	 *
+	 *  @param[in] hint The [init hint](@ref init_hints) to set.
+	 *  @param[in] value The new value of the init hint.
+	 *
+	 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eInvalidEnum and @ref
+	 *  GLFW_HPP_NAMESPACE::Error::eInvalidValue.
+	 *
+	 *  @remarks This function may be called before @ref glfwInit.
+	 *
+	 *  @thread_safety This function must only be called from the main thread.
+	 *
+	 *  @sa init_hints
+	 *  @sa glfwInit
+	 *
+	 *  @since Added in version 3.3.
+	 *
+	 *  @ingroup init
+	 */
+	GLFW_HPP_INLINE void InitHint(const InitHint hint, const Bool value) GLFW_HPP_NOEXCEPT
+	{
+		glfwInitHint(static_cast<int>(hint), static_cast<int>(value));
+	};
+
+	/*! @brief Retrieves the version of the GLFW library.
+	 *
+	 *  This function retrieves the major, minor and revision numbers of the GLFW
+	 *  library.  It is intended for when you are using GLFW as a shared library and
+	 *  want to ensure that you are using the minimum required version.
+	 *
+	 *  @param[out] major Where to store the major version number.
+	 *  @param[out] minor Where to store the minor version number.
+	 *  @param[out] rev Where to store the revision number.
+	 *
+	 *  @errors None.
+	 *
+	 *  @remark This function may be called before @ref glfwInit.
+	 *
+	 *  @thread_safety This function may be called from any thread.
+	 *
+	 *  @sa @ref intro_version
+	 *  @sa @ref glfwGetVersionString
+	 *
+	 *  @since Added in version 1.0.
+	 *
+	 *  @ingroup init
+	 */
+	GLFW_HPP_INLINE void GetVersion(Version &major, Version &minor, Version &rev) GLFW_HPP_NOEXCEPT
+	{
+		glfwGetVersion(&major, &minor, &rev);
+	}
+
+	/*! @brief Retrieves the version of the GLFW library.
+	 *
+	 *  This function retrieves the major, minor and revision numbers of the GLFW
+	 *  library.  It is intended for when you are using GLFW as a shared library and
+	 *  want to ensure that you are using the minimum required version.
+	 *
+	 *  Any or all of the version arguments may be `NULL`.
+	 *
+	 *  @param[out] major Where to store the major version number, or `nullptr`.
+	 *  @param[out] minor Where to store the minor version number, or `nullptr`.
+	 *  @param[out] rev Where to store the revision number, or `nullptr`.
+	 *
+	 *  @errors None.
+	 *
+	 *  @remark This function may be called before @ref glfwInit.
+	 *
+	 *  @thread_safety This function may be called from any thread.
+	 *
+	 *  @sa @ref intro_version
+	 *  @sa @ref glfwGetVersionString
+	 *
+	 *  @since Added in version 1.0.
+	 *
+	 *  @ingroup init
+	 */
+	GLFW_HPP_INLINE void GetVersion(Version * const major, Version * const minor, Version * const rev) GLFW_HPP_NOEXCEPT
+	{
+		glfwGetVersion(major, minor, rev);
+	}
+
+	/*! @brief Returns a string describing the compile-time configuration.
+	 *
+	 *  This function returns the compile-time generated
+	 *  [version string](@ref intro_version_string) of the GLFW library binary.  It
+	 *  describes the version, platform, compiler and any platform-specific
+	 *  compile-time options.  It should not be confused with the OpenGL or OpenGL
+	 *  ES version string, queried with `glGetString`.
+	 *
+	 *  __Do not use the version string__ to parse the GLFW library version.  The
+	 *  @ref glfwGetVersion function provides the version of the running library
+	 *  binary in numerical format.
+	 *
+	 *  @return The ASCII encoded GLFW version string.
+	 *
+	 *  @errors None.
+	 *
+	 *  @remark This function may be called before @ref glfwInit.
+	 *
+	 *  @pointer_lifetime The returned string is static and compile-time generated.
+	 *
+	 *  @thread_safety This function may be called from any thread.
+	 *
+	 *  @sa @ref intro_version
+	 *  @sa @ref glfwGetVersion
+	 *
+	 *  @since Added in version 3.0.
+	 *
+	 *  @ingroup init
+	 */
+	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE GLFW_HPP_STRING GetVersionString() GLFW_HPP_NOEXCEPT
+	{
+		return glfwGetVersionString();
+	}
+
+	/*! @brief Returns and clears the last error for the calling thread.
+	 *
+	 *  This function returns and clears the [error code](@ref errors) of the last
+	 *  error that occurred on the calling thread, and optionally a UTF-8 encoded
+	 *  human-readable description of it.  If no error has occurred since the last
+	 *  call, it returns @ref GLFW_HPP_NAMESPACE::Error::eNone (zero) and the description pointer is
+	 *  set to `nullptr`.
+	 *
+	 *  @param[in] description Where to store the error description pointer.
+	 *  @return The last error code for the calling thread, or @ref GLFW_HPP_NAMESPACE::Error::eNone
+	 *  (zero).
+	 *
+	 *  @errors None.
+	 *
+	 *  @pointer_lifetime The returned string is allocated and freed by GLFW.  You
+	 *  should not free it yourself.  It is guaranteed to be valid only until the
+	 *  next error occurs or the library is terminated.
+	 *
+	 *  @remark This function may be called before @ref glfwInit.
+	 *
+	 *  @thread_safety This function may be called from any thread.
+	 *
+	 *  @sa @ref error_handling
+	 *  @sa @ref glfwSetErrorCallback
+	 *
+	 *  @since Added in version 3.3.
+	 *
+	 *  @ingroup init
+	 */
+	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE Error GetError(GLFW_HPP_STRING &string) GLFW_HPP_NOEXCEPT
+	{
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		const char *pure_string;
+		const Error error = static_cast<Error>(glfwGetError(&pure_string));
+
+	#if GLFW_HPP_CPP_VERSION >= 17
+		GLFW_HPP_STRING other_string{pure_string};
+		std::swap(string, other_string);
+	#else
+		string = pure_string;
+	#endif
+
+		return error;
+#else
+		return static_cast<Error>(glfwGetError(&string));
+#endif
+	}
+
+	/*! @brief Returns and clears the last error for the calling thread.
+	 *
+	 *  This function returns and clears the [error code](@ref errors) of the last
+	 *  error that occurred on the calling thread, and optionally a UTF-8 encoded
+	 *  human-readable description of it.  If no error has occurred since the last
+	 *  call, it returns @ref GLFW_HPP_NAMESPACE::Error::eNone (zero) and the description pointer is
+	 *  set to `nullptr`.
+	 *
+	 *  @param[in] description Where to store the error description pointer, or `nullptr`.
+	 *  @return The last error code for the calling thread, or @ref GLFW_HPP_NAMESPACE::Error::eNone
+	 *  (zero).
+	 *
+	 *  @errors None.
+	 *
+	 *  @pointer_lifetime The returned string is allocated and freed by GLFW.  You
+	 *  should not free it yourself.  It is guaranteed to be valid only until the
+	 *  next error occurs or the library is terminated.
+	 *
+	 *  @remark This function may be called before @ref glfwInit.
+	 *
+	 *  @thread_safety This function may be called from any thread.
+	 *
+	 *  @sa @ref error_handling
+	 *  @sa @ref glfwSetErrorCallback
+	 *
+	 *  @since Added in version 3.3.
+	 *
+	 *  @ingroup init
+	 */
+	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE Error GetError(GLFW_HPP_STRING * const string) GLFW_HPP_NOEXCEPT
+	{
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		const char *pure_string;
+		const Error error = static_cast<Error>(glfwGetError(&pure_string));
+
+	#if GLFW_HPP_CPP_VERSION >= 17
+		GLFW_HPP_STRING other_string{pure_string};
+		std::swap(*string, other_string);
+	#else
+		*string = pure_string;
+	#endif
+
+		return error;
+#else
+		return static_cast<Error>(glfwGetError(string));
+#endif
+	}
+
+	/*! @brief Sets the error callback.
+	 *
+	 *  This function sets the error callback, which is called with an error code
+	 *  and a human-readable description each time a GLFW error occurs.
+	 *
+	 *  The error code is set before the callback is called.  Calling @ref
+	 *  glfwGetError from the error callback will return the same value as the error
+	 *  code argument.
+	 *
+	 *  The error callback is called on the thread where the error occurred.  If you
+	 *  are using GLFW from multiple threads, your error callback needs to be
+	 *  written accordingly.
+	 *
+	 *  Because the description string may have been generated specifically for that
+	 *  error, it is not guaranteed to be valid after the callback has returned.  If
+	 *  you wish to use it after the callback returns, you need to make a copy.
+	 *
+	 *  Once set, the error callback remains set even after the library has been
+	 *  terminated.
+	 *
+	 *  @param[in] callback The new callback, or `nullptr` to remove the currently set
+	 *  callback.
+	 *  @return The previously set callback, or `nullptr` if no callback was set.
+	 *
+	 *  @callback_signature
+	 *  @code
+	 *  void callback_name(GLFW_HPP_NAMESPACE::Error error_code, GLFW_HPP_STRING description)
+	 *  @endcode
+	 *  For more information about the callback parameters, see the
+	 *  [callback pointer type](@ref GLFW_HPP_NAMESPACE::Errorfun).
+	 *
+	 *  @errors None.
+	 *
+	 *  @remark This function may be called before @ref glfwInit.
+	 *
+	 *  @thread_safety This function must only be called from the main thread.
+	 *
+	 *  @sa @ref error_handling
+	 *  @sa @ref glfwGetError
+	 *
+	 *  @since Added in version 3.0.
+	 *
+	 *  @ingroup init
+	 */
+	GLFW_HPP_INLINE Errorfun SetErrorCallback(const Errorfun callback) GLFW_HPP_NOEXCEPT
+	{
+		return reinterpret_cast<Errorfun>(glfwSetErrorCallback(reinterpret_cast<GLFWerrorfun>(callback)));
+	}
 }
+
+// TODO: Implement hashing functions
+#ifdef GLFW_HPP_ENABLE_HASHING
+
+namespace std
+{
+	template <>
+	struct hash<GLFW_HPP_NAMESPACE::ModFlags>
+	{
+		GLFW_HPP_CONSTEXPR size_t operator()() const GLFW_HPP_NOEXCEPT
+		{
+			return 0;
+		}
+	};
+
+	template <>
+	struct hash<GLFW_HPP_NAMESPACE::Vidmode>
+	{
+		GLFW_HPP_CONSTEXPR size_t operator()() const GLFW_HPP_NOEXCEPT
+		{
+			return 0;
+		}
+	};
+
+	template <>
+	struct hash<GLFW_HPP_NAMESPACE::Gammaramp>
+	{
+		GLFW_HPP_CONSTEXPR size_t operator()() const GLFW_HPP_NOEXCEPT
+		{
+			return 0;
+		}
+	};
+
+	template <>
+	struct hash<GLFW_HPP_NAMESPACE::Image>
+	{
+		GLFW_HPP_CONSTEXPR size_t operator()() const GLFW_HPP_NOEXCEPT
+		{
+			return 0;
+		}
+	};
+
+	template <>
+	struct hash<GLFW_HPP_NAMESPACE::Gamepadstate>
+	{
+		GLFW_HPP_CONSTEXPR size_t operator()() const GLFW_HPP_NOEXCEPT
+		{
+			return 0;
+		}
+	};
+
+	template <>
+	struct hash<GLFW_HPP_NAMESPACE::Monitor>
+	{
+		GLFW_HPP_CONSTEXPR size_t operator()() const GLFW_HPP_NOEXCEPT
+		{
+			return 0;
+		}
+	};
+
+	template <>
+	struct hash<GLFW_HPP_NAMESPACE::Window>
+	{
+		GLFW_HPP_CONSTEXPR size_t operator()() const GLFW_HPP_NOEXCEPT
+		{
+			return 0;
+		}
+	};
+
+	template <>
+	struct hash<GLFW_HPP_NAMESPACE::Cursor>
+	{
+		GLFW_HPP_CONSTEXPR size_t operator()() const GLFW_HPP_NOEXCEPT
+		{
+			return 0;
+		}
+	};
+}
+
+#endif // #ifdef GLFW_HPP_ENABLE_HASHING
 
 #endif // #ifndef GLFW_HPP
