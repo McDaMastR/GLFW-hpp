@@ -99,6 +99,8 @@ Macros:
 
 #ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
 	#include <sstream> // Inclues <string> && <string_view>
+	#include <array>
+	#include <vector>
 
 	#if GLFW_HPP_CPP_VERSION >= 17
 		#define GLFW_HPP_STRING std::string_view
@@ -400,6 +402,7 @@ namespace GLFW_HPP_NAMESPACE
 	using Millimetre	   = int;
 	using ContentScale 	   = float;
 	using GamepadAxisState = float;
+	using Exponent		   = float;
 	using CursorCoordinate = double;
 	using Offset		   = double;
 	using Codepoint		   = unsigned int;
@@ -413,10 +416,10 @@ namespace GLFW_HPP_NAMESPACE
 	{
 	public:
 		// Contructors and destructor
-		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR 					Flags(				  ) GLFW_HPP_NOEXCEPT = default;
-		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT Flags(const Flags<T> &) GLFW_HPP_NOEXCEPT = default;
-		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT Flags(Flags<T> &&	  ) GLFW_HPP_NOEXCEPT = default;
-		GLFW_HPP_CONSTEXPR_DESTRUCTOR							   ~Flags(				  ) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Flags(				) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Flags(const Flags<T> &) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Flags(Flags<T> &&	  	) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_CONSTEXPR_DESTRUCTOR			 ~Flags(				) GLFW_HPP_NOEXCEPT = default;
 
 		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT Flags(const T bit		) GLFW_HPP_NOEXCEPT
 			: m_flags(static_cast<EnumSize>(bit)) {}
@@ -951,14 +954,14 @@ namespace GLFW_HPP_NAMESPACE
 		/*! @brief If this bit is set the Caps Lock key is enabled.
  		 *
  		 *  If this bit is set the Caps Lock key is enabled and the @ref
- 		 *  GLFW_LOCK_KEY_MODS input mode is set.
+ 		 *  GLFW_HPP_NAMESPACE::InputMode::eLockKeyMods input mode is set.
  		 */
 		eCapsLock = GLFW_MOD_CAPS_LOCK,
 
 		/*! @brief If this bit is set the Num Lock key is enabled.
  		 *
  		 *  If this bit is set the Num Lock key is enabled and the @ref
- 		 *  GLFW_LOCK_KEY_MODS input mode is set.
+ 		 *  GLFW_HPP_NAMESPACE::InputMode::eLockKeyMods input mode is set.
  		 */
 		eNumLock  = GLFW_MOD_NUM_LOCK
 	};
@@ -1214,7 +1217,7 @@ namespace GLFW_HPP_NAMESPACE
  		 *  requesting a non-existent OpenGL or OpenGL ES version like 2.7.
  		 *
  		 *  Requesting a valid but unavailable OpenGL or OpenGL ES version will instead
- 		 *  result in a @ref GLFW_VERSION_UNAVAILABLE error.
+ 		 *  result in a @ref GLFW_HPP_NAMESPACE::Error::eVersionUnavailable error.
  		 *
  		 *  @analysis Application programmer error.  Fix the offending call.
  		 */
@@ -1259,7 +1262,7 @@ namespace GLFW_HPP_NAMESPACE
  		 *  @par
  		 *  Future invalid OpenGL and OpenGL ES versions, for example OpenGL 4.8 if 5.0
  		 *  comes out before the 4.x series gets that far, also fail with this error and
- 		 *  not @ref GLFW_INVALID_VALUE, because GLFW cannot know what future versions
+ 		 *  not @ref GLFW_HPP_NAMESPACE::Error::eInvalidValue, because GLFW cannot know what future versions
  		 *  will exist.
  		 */
 		eVersionUnavailable = GLFW_VERSION_UNAVAILABLE,
@@ -2097,16 +2100,6 @@ namespace GLFW_HPP_NAMESPACE
 
 	// === Forward Declarations ===
 
-	/*! @brief Opaque monitor object.
- 	 *
- 	 *  Opaque monitor object.
- 	 *
- 	 *  @see @ref monitor_object
- 	 *
- 	 *  @since Added in version 3.0.
- 	 *
- 	 *  @ingroup monitor
- 	 */
 	class Monitor;
 
 	/*! @brief Opaque window object.
@@ -2645,6 +2638,8 @@ namespace GLFW_HPP_NAMESPACE
 		Hz refreshRate;
 	};
 
+	static_assert(sizeof(Vidmode) == sizeof(GLFWvidmode), "Vidmode structure and original structure are different sizes!");
+
 	/*! @brief Gamma ramp.
 	 *
 	 *  This describes the gamma ramp for a monitor.
@@ -2673,6 +2668,8 @@ namespace GLFW_HPP_NAMESPACE
 		ArraySize size;
 	};
 
+	static_assert(sizeof(Gammaramp) == sizeof(GLFWgammaramp), "Gammaramp structure and original structure are different sizes!");
+
 	/*! @brief Image data.
 	 *
 	 *  This describes a single 2D image.  See the documentation for each related
@@ -2699,6 +2696,8 @@ namespace GLFW_HPP_NAMESPACE
 		PixelData pixels;
 	};
 
+	static_assert(sizeof(Image) == sizeof(GLFWimage), "Image structure and original structure are different sizes!");
+
 	/*! @brief Gamepad input state
 	 *
 	 *  This describes the input state of a gamepad.
@@ -2721,6 +2720,8 @@ namespace GLFW_HPP_NAMESPACE
 		 */
 		GamepadAxisState axes[6];
 	};
+
+	static_assert(sizeof(Gamepadstate) == sizeof(GLFWgamepadstate), "Gamepadstate structure and original structure are different sizes!");
 
 	// === API Functions ===
 
@@ -2843,35 +2844,7 @@ namespace GLFW_HPP_NAMESPACE
 	 *  library.  It is intended for when you are using GLFW as a shared library and
 	 *  want to ensure that you are using the minimum required version.
 	 *
-	 *  @param[out] major Where to store the major version number.
-	 *  @param[out] minor Where to store the minor version number.
-	 *  @param[out] rev Where to store the revision number.
-	 *
-	 *  @errors None.
-	 *
-	 *  @remark This function may be called before @ref glfwInit.
-	 *
-	 *  @thread_safety This function may be called from any thread.
-	 *
-	 *  @sa @ref intro_version
-	 *  @sa @ref glfwGetVersionString
-	 *
-	 *  @since Added in version 1.0.
-	 *
-	 *  @ingroup init
-	 */
-	GLFW_HPP_INLINE void GetVersion(Version &major, Version &minor, Version &rev) GLFW_HPP_NOEXCEPT
-	{
-		glfwGetVersion(&major, &minor, &rev);
-	}
-
-	/*! @brief Retrieves the version of the GLFW library.
-	 *
-	 *  This function retrieves the major, minor and revision numbers of the GLFW
-	 *  library.  It is intended for when you are using GLFW as a shared library and
-	 *  want to ensure that you are using the minimum required version.
-	 *
-	 *  Any or all of the version arguments may be `NULL`.
+	 *  Any or all of the version arguments may be `nullptr`.
 	 *
 	 *  @param[out] major Where to store the major version number, or `nullptr`.
 	 *  @param[out] minor Where to store the minor version number, or `nullptr`.
@@ -2894,6 +2867,20 @@ namespace GLFW_HPP_NAMESPACE
 	{
 		glfwGetVersion(major, minor, rev);
 	}
+
+	GLFW_HPP_INLINE void GetVersion(Version &major, Version &minor, Version &rev) GLFW_HPP_NOEXCEPT
+	{
+		glfwGetVersion(&major, &minor, &rev);
+	}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+	GLFW_HPP_INLINE std::array<Version, 3> GetVersion() GLFW_HPP_NOEXCEPT
+	{
+		std::array<Version, 3> version;
+		glfwGetVersion(&version[0], &version[1], &version[2]);
+		return version;
+	}
+#endif
 
 	/*! @brief Returns a string describing the compile-time configuration.
 	 *
@@ -2927,54 +2914,6 @@ namespace GLFW_HPP_NAMESPACE
 	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE GLFW_HPP_STRING GetVersionString() GLFW_HPP_NOEXCEPT
 	{
 		return glfwGetVersionString();
-	}
-
-	/*! @brief Returns and clears the last error for the calling thread.
-	 *
-	 *  This function returns and clears the [error code](@ref errors) of the last
-	 *  error that occurred on the calling thread, and optionally a UTF-8 encoded
-	 *  human-readable description of it.  If no error has occurred since the last
-	 *  call, it returns @ref GLFW_HPP_NAMESPACE::Error::eNone (zero) and the description pointer is
-	 *  set to `nullptr`.
-	 *
-	 *  @param[in] description Where to store the error description pointer.
-	 *  @return The last error code for the calling thread, or @ref GLFW_HPP_NAMESPACE::Error::eNone
-	 *  (zero).
-	 *
-	 *  @errors None.
-	 *
-	 *  @pointer_lifetime The returned string is allocated and freed by GLFW.  You
-	 *  should not free it yourself.  It is guaranteed to be valid only until the
-	 *  next error occurs or the library is terminated.
-	 *
-	 *  @remark This function may be called before @ref glfwInit.
-	 *
-	 *  @thread_safety This function may be called from any thread.
-	 *
-	 *  @sa @ref error_handling
-	 *  @sa @ref glfwSetErrorCallback
-	 *
-	 *  @since Added in version 3.3.
-	 *
-	 *  @ingroup init
-	 */
-	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE Error GetError(GLFW_HPP_STRING &string) GLFW_HPP_NOEXCEPT
-	{
-#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
-		const char *pure_string;
-		const Error error = static_cast<Error>(glfwGetError(&pure_string));
-
-	#if GLFW_HPP_CPP_VERSION >= 17
-		GLFW_HPP_STRING other_string{pure_string};
-		std::swap(string, other_string);
-	#else
-		string = pure_string;
-	#endif
-
-		return error;
-#else
-		return static_cast<Error>(glfwGetError(&string));
-#endif
 	}
 
 	/*! @brief Returns and clears the last error for the calling thread.
@@ -3025,6 +2964,34 @@ namespace GLFW_HPP_NAMESPACE
 #endif
 	}
 
+	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE Error GetError(GLFW_HPP_STRING &string) GLFW_HPP_NOEXCEPT
+	{
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		const char *pure_string;
+		const Error error = static_cast<Error>(glfwGetError(&pure_string));
+
+	#if GLFW_HPP_CPP_VERSION >= 17
+		GLFW_HPP_STRING other_string{pure_string};
+		std::swap(string, other_string);
+	#else
+		string = pure_string;
+	#endif
+
+		return error;
+#else
+		return static_cast<Error>(glfwGetError(&string));
+#endif
+	}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::pair<Error, GLFW_HPP_STRING> GetError() GLFW_HPP_NOEXCEPT
+	{
+		const char *string;
+		const Error error = static_cast<Error>(glfwGetError(&string));
+		return {error, string};
+	}
+#endif
+
 	/*! @brief Sets the error callback.
 	 *
 	 *  This function sets the error callback, which is called with an error code
@@ -3069,10 +3036,637 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup init
 	 */
-	GLFW_HPP_INLINE Errorfun SetErrorCallback(const Errorfun callback) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_INLINE Errorfun SetErrorCallback(Errorfun callback) GLFW_HPP_NOEXCEPT
 	{
 		return reinterpret_cast<Errorfun>(glfwSetErrorCallback(reinterpret_cast<GLFWerrorfun>(callback)));
 	}
+
+	// === Classes ===
+
+	/*! @brief Opaque monitor object.
+ 	 *
+ 	 *  Opaque monitor object.
+ 	 *
+ 	 *  @see @ref monitor_object
+ 	 *
+ 	 *  @since Added in version 3.0.
+ 	 *
+ 	 *  @ingroup monitor
+ 	 */
+	class Monitor
+	{
+	public:
+		// Constructors and destructor
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Monitor(			   	 ) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Monitor(const Monitor &) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Monitor(Monitor &&	 ) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_CONSTEXPR_DESTRUCTOR 			 ~Monitor(			   	 ) GLFW_HPP_NOEXCEPT = default;
+
+	private:
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT Monitor(GLFWmonitor * const pointer) GLFW_HPP_NOEXCEPT
+			: m_monitor(pointer) {}
+	
+	public:
+
+		/*! @brief Returns the currently connected monitors.
+		 *
+		 *  This function returns an array of handles for all currently connected
+		 *  monitors.  The primary monitor is always first in the returned array.  If no
+		 *  monitors were found, this function returns `nullptr`.
+		 *
+		 *  @param[out] count Where to store the number of monitors in the returned
+		 *  array.  This is set to zero if an error occurred.
+		 *  @return An array of monitor handles, or `nullptr` if no monitors were found or
+		 *  if an [error](@ref error_handling) occurred.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @pointer_lifetime The returned array is allocated and freed by GLFW.  You
+		 *  should not free it yourself.  It is guaranteed to be valid only until the
+		 *  monitor configuration changes or the library is terminated.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref monitor_monitors
+		 *  @sa @ref monitor_event
+		 *  @sa @ref glfwGetPrimaryMonitor
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_NODISCARD("") static GLFW_HPP_INLINE Monitor *GetAll(Count * const count) GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Monitor *>(glfwGetMonitors(count));
+		}
+
+		GLFW_HPP_NODISCARD("") static GLFW_HPP_INLINE Monitor *GetAll(Count &count) GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Monitor *>(glfwGetMonitors(&count));
+		}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		GLFW_HPP_NODISCARD("") static GLFW_HPP_INLINE std::vector<Monitor> GetAll() GLFW_HPP_NOEXCEPT
+		{
+			Count count;
+			Monitor * const monitors = reinterpret_cast<Monitor *>(glfwGetMonitors(&count));
+			return {monitors, (monitors + count)};
+		}
+#endif
+
+		/*! @brief Returns the primary monitor.
+		 *
+		 *  This function returns the primary monitor.  This is usually the monitor
+		 *  where elements like the task bar or global menu bar are located.
+		 *
+		 *  @return The primary monitor, or `nullptr` if no monitors were found or if an
+		 *  [error](@ref error_handling) occurred.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @remark The primary monitor is always first in the array returned by @ref
+		 *  glfwGetMonitors.
+		 *
+		 *  @sa @ref monitor_monitors
+		 *  @sa @ref glfwGetMonitors
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_NODISCARD("") static GLFW_HPP_INLINE Monitor GetPrimary() GLFW_HPP_NOEXCEPT
+		{
+			return Monitor{glfwGetPrimaryMonitor()};
+		}
+
+		/*! @brief Returns the position of the monitor's viewport on the virtual screen.
+		 *
+		 *  This function returns the position, in screen coordinates, of the upper-left
+		 *  corner of the specified monitor.
+		 *
+		 *  Any or all of the position arguments may be `nullptr`.  If an error occurs, all
+		 *  non-`nullptr` position arguments will be set to zero.
+		 *
+		 *  @param[out] xpos Where to store the monitor x-coordinate, or `nullptr`.
+		 *  @param[out] ypos Where to store the monitor y-coordinate, or `nullptr`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref monitor_properties
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_INLINE void GetPos(ScreenCoordinate * const xpos, ScreenCoordinate * const ypos) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetMonitorPos(m_monitor, xpos, ypos);
+		}
+
+		GLFW_HPP_INLINE void GetPos(ScreenCoordinate &xpos, ScreenCoordinate &ypos) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetMonitorPos(m_monitor, &xpos, &ypos);
+		}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		GLFW_HPP_INLINE std::array<ScreenCoordinate, 2> GetPos() const GLFW_HPP_NOEXCEPT
+		{
+			std::array<ScreenCoordinate, 2> position;
+			glfwGetMonitorPos(m_monitor, &position[0], &position[1]);
+			return position;
+		}
+#endif
+
+		/*! @brief Retrieves the work area of the monitor.
+		 *
+		 *  This function returns the position, in screen coordinates, of the upper-left
+		 *  corner of the work area of the specified monitor along with the work area
+		 *  size in screen coordinates. The work area is defined as the area of the
+		 *  monitor not occluded by the operating system task bar where present. If no
+		 *  task bar exists then the work area is the monitor resolution in screen
+		 *  coordinates.
+		 *
+		 *  Any or all of the position and size arguments may be `nullptr`.  If an error
+		 *  occurs, all non-`nullptr` position and size arguments will be set to zero.
+		 *
+		 *  @param[out] xpos Where to store the monitor x-coordinate, or `nullptr`.
+		 *  @param[out] ypos Where to store the monitor y-coordinate, or `nullptr`.
+		 *  @param[out] width Where to store the monitor width, or `nullptr`.
+		 *  @param[out] height Where to store the monitor height, or `nullptr`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref monitor_workarea
+		 *
+		 *  @since Added in version 3.3.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_INLINE void GetWorkarea(ScreenCoordinate * const xpos, ScreenCoordinate * const ypos, ScreenCoordinate * const width, ScreenCoordinate * const height) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetMonitorWorkarea(m_monitor, xpos, ypos, width, height);
+		}
+
+		GLFW_HPP_INLINE void GetWorkarea(ScreenCoordinate &xpos, ScreenCoordinate &ypos, ScreenCoordinate &width, ScreenCoordinate &height) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetMonitorWorkarea(m_monitor, &xpos, &ypos, &width, &height);
+		}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		GLFW_HPP_INLINE std::array<ScreenCoordinate, 4> GetWorkarea() const GLFW_HPP_NOEXCEPT
+		{
+			std::array<ScreenCoordinate, 4> workarea;
+			glfwGetMonitorWorkarea(m_monitor, &workarea[0], &workarea[1], &workarea[2], &workarea[3]);
+			return workarea;
+		}
+#endif
+
+		/*! @brief Returns the physical size of the monitor.
+		 *
+		 *  This function returns the size, in millimetres, of the display area of the
+		 *  specified monitor.
+		 *
+		 *  Some systems do not provide accurate monitor size information, either
+		 *  because the monitor
+		 *  [EDID](https://en.wikipedia.org/wiki/Extended_display_identification_data)
+		 *  data is incorrect or because the driver does not report it accurately.
+		 *
+		 *  Any or all of the size arguments may be `nullptr`.  If an error occurs, all
+		 *  non-`nullptr` size arguments will be set to zero.
+		 *
+		 *  @param[out] widthMM Where to store the width, in millimetres, of the
+		 *  monitor's display area, or `nullptr`.
+		 *  @param[out] heightMM Where to store the height, in millimetres, of the
+		 *  monitor's display area, or `nullptr`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @remark @win32 calculates the returned physical size from the
+		 *  current resolution and system DPI instead of querying the monitor EDID data.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref monitor_properties
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_INLINE void GetPhysicalSize(Millimetre * const widthMM, Millimetre * const heightMM) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetMonitorPhysicalSize(m_monitor, widthMM, heightMM);
+		}
+
+		GLFW_HPP_INLINE void GetPhysicalSize(Millimetre &widthMM, Millimetre &heightMM) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetMonitorPhysicalSize(m_monitor, &widthMM, &heightMM);
+		}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		GLFW_HPP_INLINE std::array<Millimetre, 2> GetPhysicalSize() const GLFW_HPP_NOEXCEPT
+		{
+			std::array<Millimetre, 2> physicalsize;
+			glfwGetMonitorPhysicalSize(m_monitor, &physicalsize[0], &physicalsize[1]);
+			return physicalsize;
+		}
+#endif
+
+		/*! @brief Retrieves the content scale for the specified monitor.
+		 *
+		 *  This function retrieves the content scale for the specified monitor.  The
+		 *  content scale is the ratio between the current DPI and the platform's
+		 *  default DPI.  This is especially important for text and any UI elements.  If
+		 *  the pixel dimensions of your UI scaled by this look appropriate on your
+		 *  machine then it should appear at a reasonable size on other machines
+		 *  regardless of their DPI and scaling settings.  This relies on the system DPI
+		 *  and scaling settings being somewhat correct.
+		 *
+		 *  The content scale may depend on both the monitor resolution and pixel
+		 *  density and on user settings.  It may be very different from the raw DPI
+		 *  calculated from the physical size and current resolution.
+		 *
+		 *  @param[out] xscale Where to store the x-axis content scale, or `nullptr`.
+		 *  @param[out] yscale Where to store the y-axis content scale, or `nullptr`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref monitor_scale
+		 *  @sa @ref glfwGetWindowContentScale
+		 *
+		 *  @since Added in version 3.3.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_INLINE void GetContentScale(ContentScale * const xscale, ContentScale * const yscale) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetMonitorContentScale(m_monitor, xscale, yscale);
+		}
+
+		GLFW_HPP_INLINE void GetContentScale(ContentScale &xscale, ContentScale &yscale) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetMonitorContentScale(m_monitor, &xscale, &yscale);
+		}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		GLFW_HPP_INLINE std::array<ContentScale, 2> GetContentScale() const GLFW_HPP_NOEXCEPT
+		{
+			std::array<ContentScale, 2> contentscale;
+			glfwGetMonitorContentScale(m_monitor, &contentscale[0], &contentscale[1]);
+			return contentscale;
+		}
+#endif
+
+		/*! @brief Returns the name of the specified monitor.
+		 *
+		 *  This function returns a human-readable name, encoded as UTF-8, of the
+		 *  specified monitor.  The name typically reflects the make and model of the
+		 *  monitor and is not guaranteed to be unique among the connected monitors.
+		 *
+		 *  @return The UTF-8 encoded name of the monitor, or `nullptr` if an
+		 *  [error](@ref error_handling) occurred.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @pointer_lifetime The returned string is allocated and freed by GLFW.  You
+		 *  should not free it yourself.  It is valid until the specified monitor is
+		 *  disconnected or the library is terminated.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref monitor_properties
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE GLFW_HPP_STRING GetName() const GLFW_HPP_NOEXCEPT
+		{
+			return glfwGetMonitorName(m_monitor);
+		}
+
+		/*! @brief Sets the user pointer of the specified monitor.
+		 *
+		 *  This function sets the user-defined pointer of the specified monitor.  The
+		 *  current value is retained until the monitor is disconnected.  The initial
+		 *  value is `nullptr`.
+		 *
+		 *  This function may be called from the monitor callback, even for a monitor
+		 *  that is being disconnected.
+		 *
+		 *  @param[in] pointer The new value.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function may be called from any thread.  Access is not
+		 *  synchronized.
+		 *
+		 *  @sa @ref monitor_userptr
+		 *  @sa @ref glfwGetMonitorUserPointer
+		 *
+		 *  @since Added in version 3.3.
+		 *
+		 *  @ingroup monitor
+		 */
+		template <class T>
+		GLFW_HPP_INLINE void SetUserPointer(T * const pointer) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetMonitorUserPointer(m_monitor, static_cast<void *>(pointer));
+		}
+
+		template <class T>
+		GLFW_HPP_INLINE void SetUserPointer(T &pointer) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetMonitorUserPointer(m_monitor, static_cast<void *>(&pointer));
+		}
+
+		/*! @brief Returns the user pointer of the specified monitor.
+		 *
+		 *  This function returns the current value of the user-defined pointer of the
+		 *  specified monitor.  The initial value is `nullptr`.
+		 *
+		 *  This function may be called from the monitor callback, even for a monitor
+		 *  that is being disconnected.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function may be called from any thread.  Access is not
+		 *  synchronized.
+		 *
+		 *  @sa @ref monitor_userptr
+		 *  @sa @ref glfwSetMonitorUserPointer
+		 *
+		 *  @since Added in version 3.3.
+		 *
+		 *  @ingroup monitor
+		 */
+		template <class T>
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE T *GetUserPointer() const GLFW_HPP_NOEXCEPT
+		{
+			return static_cast<T *>(glfwGetMonitorUserPointer(m_monitor));
+		}
+
+		template <class T>
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE T &GetUserPointerRef() const GLFW_HPP_NOEXCEPT
+		{
+			return *static_cast<T *>(glfwGetMonitorUserPointer(m_monitor));
+		}
+
+		/*! @brief Sets the monitor configuration callback.
+		 *
+		 *  This function sets the monitor configuration callback, or removes the
+		 *  currently set callback.  This is called when a monitor is connected to or
+		 *  disconnected from the system.
+		 *
+		 *  @param[in] callback The new callback, or `nullptr` to remove the currently set
+		 *  callback.
+		 *  @return The previously set callback, or `nullptr` if no callback was set or the
+		 *  library had not been [initialized](@ref intro_init).
+		 *
+		 *  @callback_signature
+		 *  @code
+		 *  void function_name(GLFW_HPP_NAMESPACE::Monitor& monitor, GLFW_HPP_NAMESPACE::Event event)
+		 *  @endcode
+		 *  For more information about the callback parameters, see the
+		 *  [function pointer type](@ref GLFWmonitorfun).
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref monitor_event
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_INLINE Monitorfun SetCallback(Monitorfun callback) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Monitorfun>(glfwSetMonitorCallback(reinterpret_cast<GLFWmonitorfun>(callback)));
+		}
+
+		/*! @brief Returns the available video modes for the specified monitor.
+		 *
+		 *  This function returns an array of all video modes supported by the specified
+		 *  monitor.  The returned array is sorted in ascending order, first by color
+		 *  bit depth (the sum of all channel depths) and then by resolution area (the
+		 *  product of width and height).
+		 *
+		 *  @param[out] count Where to store the number of video modes in the returned
+		 *  array.  This is set to zero if an error occurred.
+		 *  @return An array of video modes, or `nullptr` if an
+		 *  [error](@ref error_handling) occurred.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @pointer_lifetime The returned array is allocated and freed by GLFW.  You
+		 *  should not free it yourself.  It is valid until the specified monitor is
+		 *  disconnected, this function is called again for that monitor or the library
+		 *  is terminated.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref monitor_modes
+		 *  @sa @ref glfwGetVideoMode
+		 *
+		 *  @since Added in version 1.0.
+		 *  @glfw3 Changed to return an array of modes for a specific monitor.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE const Vidmode *GetVideoModes(Count * const count) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<const Vidmode *>(glfwGetVideoModes(m_monitor, count));
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE const Vidmode *GetVideoModes(Count &count) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<const Vidmode *>(glfwGetVideoModes(m_monitor, &count));
+		}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::vector<const Vidmode> GetVideoModes() const GLFW_HPP_NOEXCEPT
+		{
+			Count count;
+			const Vidmode * const videomodes = reinterpret_cast<const Vidmode *>(glfwGetVideoModes(m_monitor, &count));
+			return {videomodes, (videomodes + count)};
+		}
+#endif
+
+		/*! @brief Returns the current mode of the specified monitor.
+		 *
+		 *  This function returns the current video mode of the specified monitor.  If
+		 *  you have created a full screen window for that monitor, the return value
+		 *  will depend on whether that window is iconified.
+		 *
+		 *  @return The current mode of the monitor, or `nullptr` if an
+		 *  [error](@ref error_handling) occurred.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @pointer_lifetime The returned array is allocated and freed by GLFW.  You
+		 *  should not free it yourself.  It is valid until the specified monitor is
+		 *  disconnected or the library is terminated.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref monitor_modes
+		 *  @sa @ref glfwGetVideoModes
+		 *
+		 *  @since Added in version 3.0.  Replaces `glfwGetDesktopMode`.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE const Vidmode *GetVideoMode() const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<const Vidmode *>(glfwGetVideoMode(m_monitor));
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE const Vidmode &GetVideoModeRef() const GLFW_HPP_NOEXCEPT
+		{
+			return *reinterpret_cast<const Vidmode *>(glfwGetVideoMode(m_monitor));
+		}
+
+		/*! @brief Generates a gamma ramp and sets it for the specified monitor.
+		 *
+		 *  This function generates an appropriately sized gamma ramp from the specified
+		 *  exponent and then calls @ref glfwSetGammaRamp with it.  The value must be
+		 *  a finite number greater than zero.
+		 *
+		 *  The software controlled gamma ramp is applied _in addition_ to the hardware
+		 *  gamma correction, which today is usually an approximation of sRGB gamma.
+		 *  This means that setting a perfectly linear ramp, or gamma 1.0, will produce
+		 *  the default (usually sRGB-like) behavior.
+		 *
+		 *  For gamma correct rendering with OpenGL or OpenGL ES, see the @ref
+		 *  GLFW_HPP_NAMESPACE::WindowHint::eSrgbCapable hint.
+		 *
+		 *  @param[in] gamma The desired exponent.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized, @ref
+		 *  GLFW_HPP_NAMESPACE::Error::eInvalidValue and @ref GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark @wayland Gamma handling is a privileged protocol, this function
+		 *  will thus never be implemented and emits @ref GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref monitor_gamma
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_INLINE void SetGamma(const Exponent gamma) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetGamma(m_monitor, gamma);
+		}
+
+		/*! @brief Returns the current gamma ramp for the specified monitor.
+		 *
+		 *  This function returns the current gamma ramp of the specified monitor.
+		 *
+		 *  @return The current gamma ramp, or `nullptr` if an
+		 *  [error](@ref error_handling) occurred.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark @wayland Gamma handling is a privileged protocol, this function
+		 *  will thus never be implemented and emits @ref GLFW_HPP_NAMESPACE::Error::ePlatform while
+		 *  returning `nullptr`.
+		 *
+		 *  @pointer_lifetime The returned structure and its arrays are allocated and
+		 *  freed by GLFW.  You should not free them yourself.  They are valid until the
+		 *  specified monitor is disconnected, this function is called again for that
+		 *  monitor or the library is terminated.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref monitor_gamma
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_INLINE const Gammaramp *GetGammaRamp() const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<const Gammaramp *>(glfwGetGammaRamp(m_monitor));
+		}
+
+		GLFW_HPP_INLINE const Gammaramp &GetGammaRampRef() const GLFW_HPP_NOEXCEPT
+		{
+			return *reinterpret_cast<const Gammaramp *>(glfwGetGammaRamp(m_monitor));
+		}
+
+		/*! @brief Sets the current gamma ramp for the specified monitor.
+		 *
+		 *  This function sets the current gamma ramp for the specified monitor.  The
+		 *  original gamma ramp for that monitor is saved by GLFW the first time this
+		 *  function is called and is restored by @ref glfwTerminate.
+		 *
+		 *  The software controlled gamma ramp is applied _in addition_ to the hardware
+		 *  gamma correction, which today is usually an approximation of sRGB gamma.
+		 *  This means that setting a perfectly linear ramp, or gamma 1.0, will produce
+		 *  the default (usually sRGB-like) behavior.
+		 *
+		 *  For gamma correct rendering with OpenGL or OpenGL ES, see the @ref
+		 *  GLFW_HPP_NAMESPACE::WindowHint::eSrgbCapable hint.
+		 *
+		 *  @param[in] ramp The gamma ramp to use.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark The size of the specified gamma ramp should match the size of the
+		 *  current ramp for that monitor.
+		 *
+		 *  @remark @win32 The gamma ramp size must be 256.
+		 *
+		 *  @remark @wayland Gamma handling is a privileged protocol, this function
+		 *  will thus never be implemented and emits @ref GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @pointer_lifetime The specified gamma ramp is copied before this function
+		 *  returns.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref monitor_gamma
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup monitor
+		 */
+		GLFW_HPP_INLINE void SetGammaRamp(const Gammaramp * const ramp) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetGammaRamp(m_monitor, reinterpret_cast<const GLFWgammaramp *>(ramp));
+		}
+
+		GLFW_HPP_INLINE void SetGammaRamp(const Gammaramp &ramp) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetGammaRamp(m_monitor, reinterpret_cast<const GLFWgammaramp *>(&ramp));
+		}
+	private:
+		GLFWmonitor *m_monitor = nullptr;
+
+#ifdef GLFW_HPP_ENABLE_HASHING
+		friend struct std::hash<Monitor>;
+#endif
+	};
+
+	static_assert(sizeof(Monitor) == sizeof(GLFWmonitor *), "Monitor class and original pointer are different sizes!");
 }
 
 // TODO: Implement hashing functions

@@ -30,3 +30,11 @@ The features that have been implemented are:
 
 - Macro configurations
 - Enum classes
+- to_string functions (for enums)
+- Helper types (Flags class, "using" keyword for type safety etc.)
+- Function pointer types
+- API structures
+- Basic API functions (init, terminate etc.)
+- 1/3 Main classes complete
+  - Complete: Monitor
+  - Incomplete: Window, Cursor
