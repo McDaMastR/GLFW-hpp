@@ -403,6 +403,7 @@ namespace GLFW_HPP_NAMESPACE
 	using ContentScale 	   = float;
 	using GamepadAxisState = float;
 	using Exponent		   = float;
+	using Opacity		   = float;
 	using CursorCoordinate = double;
 	using Offset		   = double;
 	using Codepoint		   = unsigned int;
@@ -479,40 +480,6 @@ namespace GLFW_HPP_NAMESPACE
 		snprintf(string + 15, 5, "%X", value);
 		return string;
 #endif
-	}
-
-	enum class Bool : EnumSize
-	{
-		/*! @brief One.
-		*
-		*  This is only semantic sugar for the number 1.  You can instead use `1` or
-		*  `true` or `_True` or `GL_TRUE` or `VK_TRUE` or anything else that is equal
-		*  to one.
-		*
-		*  @ingroup init
-		*/
-		eTrue  = GLFW_TRUE,
-
-		/*! @brief Zero.
-		*
-		*  This is only semantic sugar for the number 0.  You can instead use `0` or
-		*  `false` or `_False` or `GL_FALSE` or `VK_FALSE` or anything else that is
-		*  equal to zero.
-		*
-		*  @ingroup init
-		*/
-		eFalse = GLFW_FALSE
-	};
-
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Bool value) GLFW_HPP_NOEXCEPT
-	{
-		switch(value)
-		{
-		case Bool::eTrue:  return "True";
-		case Bool::eFalse: return "False";
-		}
-
-		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
 	/*! @name Key and button actions 
@@ -2102,28 +2069,8 @@ namespace GLFW_HPP_NAMESPACE
 
 	class Monitor;
 
-	/*! @brief Opaque window object.
- 	 *
- 	 *  Opaque window object.
- 	 *
- 	 *  @see @ref window_object
- 	 *
- 	 *  @since Added in version 3.0.
- 	 *
- 	 *  @ingroup window
- 	 */
 	class Window;
 
-	/*! @brief Opaque cursor object.
- 	 *
- 	 *  Opaque cursor object.
- 	 *
- 	 *  @see @ref cursor_object
- 	 *
- 	 *  @since Added in version 3.1.
- 	 *
- 	 *  @ingroup input
- 	 */
 	class Cursor;
 
 	// === Function Types ===
@@ -2161,7 +2108,7 @@ namespace GLFW_HPP_NAMESPACE
  	 *  This is the function pointer type for error callbacks.  An error callback
  	 *  function has the following signature:
  	 *  @code
- 	 *  void callback_name(GLFW_HPP_NAMESPACE::Error error_code, GLFW_HPP_STRING description)
+ 	 *  void callback_name(GLFW_HPP_NAMESPACE::Error error_code, GLFW_HPP_NAMESPACE::GLFW_HPP_STRING const &description)
  	 *  @endcode
  	 *
  	 *  @param[in] error_code An [error code](@ref errors).  Future releases may add
@@ -2178,14 +2125,14 @@ namespace GLFW_HPP_NAMESPACE
  	 *
  	 *  @ingroup init
  	 */
-	using Errorfun = void (*)(Error, GLFW_HPP_STRING);
+	using Errorfun = void (*)(Error, GLFW_HPP_STRING const &);
 
 	/*! @brief The function pointer type for window position callbacks.
  	 *
  	 *  This is the function pointer type for window position callbacks.  A window
  	 *  position callback function has the following signature:
  	 *  @code
- 	 *  void callback_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::ScreenCoordinate xpos, GLFW_HPP_NAMESPACE::ScreenCoordinate ypos)
+ 	 *  void callback_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::ScreenCoordinate xpos, GLFW_HPP_NAMESPACE::ScreenCoordinate ypos)
  	 *  @endcode
  	 *
  	 *  @param[in] window The window that was moved.
@@ -2201,14 +2148,14 @@ namespace GLFW_HPP_NAMESPACE
  	 *
  	 *  @ingroup window
  	 */
-	using Windowposfun = void (*)(Window&, ScreenCoordinate, ScreenCoordinate);
+	using Windowposfun = void (*)(Window, ScreenCoordinate, ScreenCoordinate);
 
 	/*! @brief The function pointer type for window size callbacks.
  	 *
  	 *  This is the function pointer type for window size callbacks.  A window size
  	 *  callback function has the following signature:
  	 *  @code
- 	 *  void callback_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::ScreenCoordinate width, GLFW_HPP_NAMESPACE::ScreenCoordinate height)
+ 	 *  void callback_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::ScreenCoordinate width, GLFW_HPP_NAMESPACE::ScreenCoordinate height)
  	 *  @endcode
  	 *
  	 *  @param[in] window The window that was resized.
@@ -2223,14 +2170,14 @@ namespace GLFW_HPP_NAMESPACE
  	 *
  	 *  @ingroup window
  	 */
-	using Windowsizefun = void (*)(Window&, ScreenCoordinate, ScreenCoordinate);
+	using Windowsizefun = void (*)(Window, ScreenCoordinate, ScreenCoordinate);
 
 	/*! @brief The function pointer type for window close callbacks.
 	 *
 	 *  This is the function pointer type for window close callbacks.  A window
 	 *  close callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window)
 	 *  @endcode
 	 *
 	 *  @param[in] window The window that the user attempted to close.
@@ -2243,14 +2190,14 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup window
 	 */
-	using Windowclosefun = void (*)(Window&);
+	using Windowclosefun = void (*)(Window);
 
 	/*! @brief The function pointer type for window content refresh callbacks.
 	 *
 	 *  This is the function pointer type for window content refresh callbacks.
 	 *  A window content refresh callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window);
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window);
 	 *  @endcode
 	 *
 	 *  @param[in] window The window whose content needs to be refreshed.
@@ -2263,19 +2210,19 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup window
 	 */
-	using Windowrefreshfun = void (*)(Window&);
+	using Windowrefreshfun = void (*)(Window);
 
 	/*! @brief The function pointer type for window focus callbacks.
 	 *
 	 *  This is the function pointer type for window focus callbacks.  A window
 	 *  focus callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Bool focused)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, bool focused)
 	 *  @endcode
 	 *
 	 *  @param[in] window The window that gained or lost input focus.
-	 *  @param[in] focused `GLFW_HPP_NAMESPACE::Bool::eTrue` if the window was given input focus, or
-	 *  `GLFW_HPP_NAMESPACE::Bool::eFalse` if it lost it.
+	 *  @param[in] focused `true` if the window was given input focus, or
+	 *  `false` if it lost it.
 	 *
 	 *  @sa @ref window_focus
 	 *  @sa @ref glfwSetWindowFocusCallback
@@ -2284,19 +2231,19 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup window
 	 */
-	using Windowfocusfun = void (*)(Window&, Bool);
+	using Windowfocusfun = void (*)(Window, bool);
 
 	/*! @brief The function pointer type for window iconify callbacks.
 	 *
 	 *  This is the function pointer type for window iconify callbacks.  A window
 	 *  iconify callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Bool iconified)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, bool iconified)
 	 *  @endcode
 	 *
 	 *  @param[in] window The window that was iconified or restored.
-	 *  @param[in] iconified `GLFW_HPP_NAMESPACE::Bool::eTrue` if the window was iconified, or
-	 *  `GLFW_HPP_NAMESPACE::Bool::eFalse` if it was restored.
+	 *  @param[in] iconified `true` if the window was iconified, or
+	 *  `false` if it was restored.
 	 *
 	 *  @sa @ref window_iconify
 	 *  @sa @ref glfwSetWindowIconifyCallback
@@ -2305,19 +2252,19 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup window
 	 */
-	using Windowiconifyfun = void (*)(Window&, Bool);
+	using Windowiconifyfun = void (*)(Window, bool);
 
 	/*! @brief The function pointer type for window maximize callbacks.
 	 *
 	 *  This is the function pointer type for window maximize callbacks.  A window
 	 *  maximize callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Bool maximized)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, bool maximized)
 	 *  @endcode
 	 *
 	 *  @param[in] window The window that was maximized or restored.
-	 *  @param[in] maximized `GLFW_HPP_NAMESPACE::Bool::eTrue` if the window was maximized, or
-	 *  `GLFW_HPP_NAMESPACE::Bool::eFalse` if it was restored.
+	 *  @param[in] maximized `true` if the window was maximized, or
+	 *  `false` if it was restored.
 	 *
 	 *  @sa @ref window_maximize
 	 *  @sa glfwSetWindowMaximizeCallback
@@ -2326,14 +2273,14 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup window
 	 */
-	using Windowmaximizefun = void (*)(Window&, Bool);
+	using Windowmaximizefun = void (*)(Window, bool);
 
 	/*! @brief The function pointer type for framebuffer size callbacks.
 	 *
 	 *  This is the function pointer type for framebuffer size callbacks.
 	 *  A framebuffer size callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Pixel width, GLFW_HPP_NAMESPACE::Pixel height)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::Pixel width, GLFW_HPP_NAMESPACE::Pixel height)
 	 *  @endcode
 	 *
 	 *  @param[in] window The window whose framebuffer was resized.
@@ -2347,14 +2294,14 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup window
 	 */
-	using Framebuffersizefun = void (*)(Window&, Pixel, Pixel);
+	using Framebuffersizefun = void (*)(Window, Pixel, Pixel);
 
 	/*! @brief The function pointer type for window content scale callbacks.
 	 *
 	 *  This is the function pointer type for window content scale callbacks.
 	 *  A window content scale callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::ContentScale xscale, GLFW_HPP_NAMESPACE::ContentScale yscale)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::ContentScale xscale, GLFW_HPP_NAMESPACE::ContentScale yscale)
 	 *  @endcode
 	 *
 	 *  @param[in] window The window whose content scale changed.
@@ -2368,14 +2315,14 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup window
 	 */
-	using Windowcontentscalefun = void (*)(Window&, ContentScale, ContentScale);
+	using Windowcontentscalefun = void (*)(Window, ContentScale, ContentScale);
 
 	/*! @brief The function pointer type for mouse button callbacks.
 	 *
 	 *  This is the function pointer type for mouse button callback functions.
 	 *  A mouse button callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::MouseButton button, GLFW_HPP_NAMESPACE::Action action, GLFW_HPP_NAMESPACE::ModFlags mods)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::MouseButton button, GLFW_HPP_NAMESPACE::Action action, GLFW_HPP_NAMESPACE::ModFlags mods)
 	 *  @endcode
 	 *
 	 *  @param[in] window The window that received the event.
@@ -2394,14 +2341,14 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup input
 	 */
-	using Mousebuttonfun = void (*)(Window&, MouseButton, Action, ModFlags);
+	using Mousebuttonfun = void (*)(Window, MouseButton, Action, ModFlags);
 
 	/*! @brief The function pointer type for cursor position callbacks.
 	 *
 	 *  This is the function pointer type for cursor position callbacks.  A cursor
 	 *  position callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::CursorCoordinate xpos, GLFW_HPP_NAMESPACE::CursorCoordinate ypos);
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::CursorCoordinate xpos, GLFW_HPP_NAMESPACE::CursorCoordinate ypos);
 	 *  @endcode
 	 *
 	 *  @param[in] window The window that received the event.
@@ -2417,19 +2364,19 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup input
 	 */
-	using Cursorposfun = void (*)(Window&, CursorCoordinate, CursorCoordinate);
+	using Cursorposfun = void (*)(Window, CursorCoordinate, CursorCoordinate);
 
 	/*! @brief The function pointer type for cursor enter/leave callbacks.
 	 *
 	 *  This is the function pointer type for cursor enter/leave callbacks.
 	 *  A cursor enter/leave callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Bool entered)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, bool entered)
 	 *  @endcode
 	 *
 	 *  @param[in] window The window that received the event.
-	 *  @param[in] entered `GLFW_HPP_NAMESPACE::Bool::eTrue` if the cursor entered the window's content
-	 *  area, or `GLFW_HPP_NAMESPACE::Bool::eFalse` if it left it.
+	 *  @param[in] entered `true` if the cursor entered the window's content
+	 *  area, or `false` if it left it.
 	 *
 	 *  @sa @ref cursor_enter
 	 *  @sa @ref glfwSetCursorEnterCallback
@@ -2438,14 +2385,14 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup input
 	 */
-	using Cursorenterfun = void (*)(Window&, Bool);
+	using Cursorenterfun = void (*)(Window, bool);
 
 	/*! @brief The function pointer type for scroll callbacks.
 	 *
 	 *  This is the function pointer type for scroll callbacks.  A scroll callback
 	 *  function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Offset xoffset, GLFW_HPP_NAMESPACE::Offset yoffset)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::Offset xoffset, GLFW_HPP_NAMESPACE::Offset yoffset)
 	 *  @endcode
 	 *
 	 *  @param[in] window The window that received the event.
@@ -2459,14 +2406,14 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup input
 	 */
-	using Scrollfun = void (*)(Window&, Offset, Offset);
+	using Scrollfun = void (*)(Window, Offset, Offset);
 
 	/*! @brief The function pointer type for keyboard key callbacks.
 	 *
 	 *  This is the function pointer type for keyboard key callbacks.  A keyboard
 	 *  key callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Key key, GLFW_HPP_NAMESPACE::Scancode scancode, GLFW_HPP_NAMESPACE::Action action, GLFW_HPP_NAMESPACE::ModFlags mods)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::Key key, GLFW_HPP_NAMESPACE::Scancode scancode, GLFW_HPP_NAMESPACE::Action action, GLFW_HPP_NAMESPACE::ModFlags mods)
 	 *  @endcode
 	 *
 	 *  @param[in] window The window that received the event.
@@ -2485,14 +2432,14 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup input
 	 */
-	using Keyfun = void (*)(Window&, Key, Scancode, Action, ModFlags);
+	using Keyfun = void (*)(Window, Key, Scancode, Action, ModFlags);
 
 	/*! @brief The function pointer type for Unicode character callbacks.
 	 *
 	 *  This is the function pointer type for Unicode character callbacks.
 	 *  A Unicode character callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Codepoint codepoint)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::Codepoint codepoint)
 	 *  @endcode
 	 *
 	 *  @param[in] window The window that received the event.
@@ -2506,7 +2453,7 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup input
 	 */
-	using Charfun = void (*)(Window&, Codepoint);
+	using Charfun = void (*)(Window, Codepoint);
 
 	/*! @brief The function pointer type for Unicode character with modifiers
 	 *  callbacks.
@@ -2516,7 +2463,7 @@ namespace GLFW_HPP_NAMESPACE
 	 *  modifier keys are held down.  A Unicode character with modifiers callback
 	 *  function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Codepoint codepoint, GLFW_HPP_NAMESPACE::ModFlags mods)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::Codepoint codepoint, GLFW_HPP_NAMESPACE::ModFlags mods)
 	 *  @endcode
 	 *
 	 *  @param[in] window The window that received the event.
@@ -2533,14 +2480,14 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup input
 	 */
-	using Charmodsfun = void (*)(Window&, Codepoint, ModFlags);
+	using Charmodsfun = void (*)(Window, Codepoint, ModFlags);
 
 	/*! @brief The function pointer type for path drop callbacks.
 	 *
 	 *  This is the function pointer type for path drop callbacks.  A path drop
 	 *  callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Window& window, GLFW_HPP_NAMESPACE::Count path_count, GLFW_HPP_NAMESPACE::GLFW_HPP_STRING paths[])
+	 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::Count path_count, GLFW_HPP_NAMESPACE::GLFW_HPP_STRING paths[])
 	 *  @endcode
 	 *
 	 *  @param[in] window The window that received the event.
@@ -2557,14 +2504,14 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup input
 	 */
-	using Dropfun = void (*)(Window&, Count, GLFW_HPP_STRING[]);
+	using Dropfun = void (*)(Window, Count, GLFW_HPP_STRING const []);
 
 	/*! @brief The function pointer type for monitor configuration callbacks.
 	 *
 	 *  This is the function pointer type for monitor configuration callbacks.
 	 *  A monitor callback function has the following signature:
 	 *  @code
-	 *  void function_name(GLFW_HPP_NAMESPACE::Monitor& monitor, GLFW_HPP_NAMESPACE::Event event)
+	 *  void function_name(GLFW_HPP_NAMESPACE::Monitor monitor, GLFW_HPP_NAMESPACE::Event event)
 	 *  @endcode
 	 *
 	 *  @param[in] monitor The monitor that was connected or disconnected.
@@ -2578,7 +2525,7 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup monitor
 	 */
-	using Monitorfun = void (*)(Monitor&, Event);
+	using Monitorfun = void (*)(Monitor, Event);
 
 	/*! @brief The function pointer type for joystick configuration callbacks.
 	 *
@@ -2736,9 +2683,9 @@ namespace GLFW_HPP_NAMESPACE
 	 *  succeeds, you should call @ref glfwTerminate before the application exits.
 	 *
 	 *  Additional calls to this function after successful initialization but before
-	 *  termination will return `GLFW_HPP_NAMESPACE::Bool::eTrue` immediately.
+	 *  termination will return `true` immediately.
 	 *
-	 *  @return `GLFW_HPP_NAMESPACE::Bool::eTrue` if successful, or `GLFW_HPP_NAMESPACE::Bool::eFalse` if an
+	 *  @return `true` if successful, or `false` if an
 	 *  [error](@ref error_handling) occurred.
 	 *
 	 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::ePlatform.
@@ -2761,9 +2708,9 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup init
 	 */
-	GLFW_HPP_INLINE Bool Init() GLFW_HPP_NOEXCEPT
+	GLFW_HPP_INLINE bool Init() GLFW_HPP_NOEXCEPT
 	{
-		return static_cast<Bool>(glfwInit());
+		return glfwInit();
 	}
 
 	/*! @brief Terminates the GLFW library.
@@ -2833,9 +2780,15 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup init
 	 */
-	GLFW_HPP_INLINE void InitHint(const InitHint hint, const Bool value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_INLINE void InitHint(const InitHint hint, const bool value) GLFW_HPP_NOEXCEPT
 	{
-		glfwInitHint(static_cast<int>(hint), static_cast<int>(value));
+		glfwInitHint(static_cast<int>(hint), value);
+	};
+
+	template <enum InitHint hint, bool value>
+	GLFW_HPP_INLINE void InitHint() GLFW_HPP_NOEXCEPT
+	{
+		glfwInitHint(static_cast<int>(hint), value);
 	};
 
 	/*! @brief Retrieves the version of the GLFW library.
@@ -2863,7 +2816,7 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup init
 	 */
-	GLFW_HPP_INLINE void GetVersion(Version * const major, Version * const minor, Version * const rev) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_INLINE void GetVersion(Version * const major, Version * const minor = nullptr, Version * const rev = nullptr) GLFW_HPP_NOEXCEPT
 	{
 		glfwGetVersion(major, minor, rev);
 	}
@@ -2874,9 +2827,16 @@ namespace GLFW_HPP_NAMESPACE
 	}
 
 #ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
-	GLFW_HPP_INLINE std::array<Version, 3> GetVersion() GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::array<Version, 3> GetVersion() GLFW_HPP_NOEXCEPT
 	{
 		std::array<Version, 3> version;
+		glfwGetVersion(&version[0], &version[1], &version[2]);
+		return version;
+	}
+
+	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::vector<Version> GetVersionVector() GLFW_HPP_NOEXCEPT
+	{
+		std::vector<Version> version(3);
 		glfwGetVersion(&version[0], &version[1], &version[2]);
 		return version;
 	}
@@ -2945,20 +2905,23 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup init
 	 */
-	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE Error GetError(GLFW_HPP_STRING * const string) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE Error GetError(GLFW_HPP_STRING * const string = nullptr) GLFW_HPP_NOEXCEPT
 	{
 #ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
-		const char *pure_string;
-		const Error error = static_cast<Error>(glfwGetError(&pure_string));
+		if (string) {
+			const char *pure_string;
+			const Error error = static_cast<Error>(glfwGetError(&pure_string));
 
 	#if GLFW_HPP_CPP_VERSION >= 17
-		GLFW_HPP_STRING other_string{pure_string};
-		std::swap(*string, other_string);
+			GLFW_HPP_STRING other_string{pure_string}; 
+			std::swap(*string, other_string);
 	#else
-		*string = pure_string;
+			*string = pure_string;
 	#endif
+			return error;
+		}
 
-		return error;
+		return static_cast<Error>(glfwGetError(nullptr));
 #else
 		return static_cast<Error>(glfwGetError(string));
 #endif
@@ -2984,7 +2947,7 @@ namespace GLFW_HPP_NAMESPACE
 	}
 
 #ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
-	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::pair<Error, GLFW_HPP_STRING> GetError() GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::pair<Error, GLFW_HPP_STRING const> GetError() GLFW_HPP_NOEXCEPT
 	{
 		const char *string;
 		const Error error = static_cast<Error>(glfwGetError(&string));
@@ -3018,7 +2981,7 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @callback_signature
 	 *  @code
-	 *  void callback_name(GLFW_HPP_NAMESPACE::Error error_code, GLFW_HPP_STRING description)
+	 *  void callback_name(GLFW_HPP_NAMESPACE::Error error_code, GLFW_HPP_NAMESPACE::GLFW_HPP_STRING description)
 	 *  @endcode
 	 *  For more information about the callback parameters, see the
 	 *  [callback pointer type](@ref GLFW_HPP_NAMESPACE::Errorfun).
@@ -3036,7 +2999,13 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup init
 	 */
-	GLFW_HPP_INLINE Errorfun SetErrorCallback(Errorfun callback) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_INLINE Errorfun SetErrorCallback(Errorfun callback = nullptr) GLFW_HPP_NOEXCEPT
+	{
+		return reinterpret_cast<Errorfun>(glfwSetErrorCallback(reinterpret_cast<GLFWerrorfun>(callback)));
+	}
+
+	template <Errorfun callback = nullptr>
+	GLFW_HPP_INLINE Errorfun SetErrorCallback() GLFW_HPP_NOEXCEPT
 	{
 		return reinterpret_cast<Errorfun>(glfwSetErrorCallback(reinterpret_cast<GLFWerrorfun>(callback)));
 	}
@@ -3061,6 +3030,16 @@ namespace GLFW_HPP_NAMESPACE
 		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Monitor(const Monitor &) GLFW_HPP_NOEXCEPT = default;
 		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Monitor(Monitor &&	 ) GLFW_HPP_NOEXCEPT = default;
 		GLFW_HPP_CONSTEXPR_DESTRUCTOR 			 ~Monitor(			   	 ) GLFW_HPP_NOEXCEPT = default;
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT operator const GLFWmonitor *() const GLFW_HPP_NOEXCEPT
+		{
+			return m_monitor;
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_NON_CONST_METHOD GLFW_HPP_EXPLICIT operator GLFWmonitor *() GLFW_HPP_NOEXCEPT
+		{
+			return m_monitor;
+		}
 
 	private:
 		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT Monitor(GLFWmonitor * const pointer) GLFW_HPP_NOEXCEPT
@@ -3110,7 +3089,10 @@ namespace GLFW_HPP_NAMESPACE
 		{
 			Count count;
 			Monitor * const monitors = reinterpret_cast<Monitor *>(glfwGetMonitors(&count));
-			return {monitors, (monitors + count)};
+
+			if (monitors) GLFW_HPP_LIKELY
+				return {monitors, (monitors + count)};
+			return {};
 		}
 #endif
 
@@ -3163,7 +3145,7 @@ namespace GLFW_HPP_NAMESPACE
 		 *
 		 *  @ingroup monitor
 		 */
-		GLFW_HPP_INLINE void GetPos(ScreenCoordinate * const xpos, ScreenCoordinate * const ypos) const GLFW_HPP_NOEXCEPT
+		GLFW_HPP_INLINE void GetPos(ScreenCoordinate * const xpos, ScreenCoordinate * const ypos = nullptr) const GLFW_HPP_NOEXCEPT
 		{
 			glfwGetMonitorPos(m_monitor, xpos, ypos);
 		}
@@ -3174,9 +3156,16 @@ namespace GLFW_HPP_NAMESPACE
 		}
 
 #ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
-		GLFW_HPP_INLINE std::array<ScreenCoordinate, 2> GetPos() const GLFW_HPP_NOEXCEPT
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::array<ScreenCoordinate, 2> GetPos() const GLFW_HPP_NOEXCEPT
 		{
 			std::array<ScreenCoordinate, 2> position;
+			glfwGetMonitorPos(m_monitor, &position[0], &position[1]);
+			return position;
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::vector<ScreenCoordinate> GetPosVector() const GLFW_HPP_NOEXCEPT
+		{
+			std::vector<ScreenCoordinate> position(2);
 			glfwGetMonitorPos(m_monitor, &position[0], &position[1]);
 			return position;
 		}
@@ -3210,7 +3199,7 @@ namespace GLFW_HPP_NAMESPACE
 		 *
 		 *  @ingroup monitor
 		 */
-		GLFW_HPP_INLINE void GetWorkarea(ScreenCoordinate * const xpos, ScreenCoordinate * const ypos, ScreenCoordinate * const width, ScreenCoordinate * const height) const GLFW_HPP_NOEXCEPT
+		GLFW_HPP_INLINE void GetWorkarea(ScreenCoordinate * const xpos, ScreenCoordinate * const ypos = nullptr, ScreenCoordinate * const width = nullptr, ScreenCoordinate * const height = nullptr) const GLFW_HPP_NOEXCEPT
 		{
 			glfwGetMonitorWorkarea(m_monitor, xpos, ypos, width, height);
 		}
@@ -3221,9 +3210,16 @@ namespace GLFW_HPP_NAMESPACE
 		}
 
 #ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
-		GLFW_HPP_INLINE std::array<ScreenCoordinate, 4> GetWorkarea() const GLFW_HPP_NOEXCEPT
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::array<ScreenCoordinate, 4> GetWorkarea() const GLFW_HPP_NOEXCEPT
 		{
 			std::array<ScreenCoordinate, 4> workarea;
+			glfwGetMonitorWorkarea(m_monitor, &workarea[0], &workarea[1], &workarea[2], &workarea[3]);
+			return workarea;
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::vector<ScreenCoordinate> GetWorkareaVector() const GLFW_HPP_NOEXCEPT
+		{
+			std::vector<ScreenCoordinate> workarea(4);
 			glfwGetMonitorWorkarea(m_monitor, &workarea[0], &workarea[1], &workarea[2], &workarea[3]);
 			return workarea;
 		}
@@ -3260,7 +3256,7 @@ namespace GLFW_HPP_NAMESPACE
 		 *
 		 *  @ingroup monitor
 		 */
-		GLFW_HPP_INLINE void GetPhysicalSize(Millimetre * const widthMM, Millimetre * const heightMM) const GLFW_HPP_NOEXCEPT
+		GLFW_HPP_INLINE void GetPhysicalSize(Millimetre * const widthMM, Millimetre * const heightMM = nullptr) const GLFW_HPP_NOEXCEPT
 		{
 			glfwGetMonitorPhysicalSize(m_monitor, widthMM, heightMM);
 		}
@@ -3271,9 +3267,16 @@ namespace GLFW_HPP_NAMESPACE
 		}
 
 #ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
-		GLFW_HPP_INLINE std::array<Millimetre, 2> GetPhysicalSize() const GLFW_HPP_NOEXCEPT
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::array<Millimetre, 2> GetPhysicalSize() const GLFW_HPP_NOEXCEPT
 		{
 			std::array<Millimetre, 2> physicalsize;
+			glfwGetMonitorPhysicalSize(m_monitor, &physicalsize[0], &physicalsize[1]);
+			return physicalsize;
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::vector<Millimetre> GetPhysicalSizeVector() const GLFW_HPP_NOEXCEPT
+		{
+			std::vector<Millimetre> physicalsize(2);
 			glfwGetMonitorPhysicalSize(m_monitor, &physicalsize[0], &physicalsize[1]);
 			return physicalsize;
 		}
@@ -3308,7 +3311,7 @@ namespace GLFW_HPP_NAMESPACE
 		 *
 		 *  @ingroup monitor
 		 */
-		GLFW_HPP_INLINE void GetContentScale(ContentScale * const xscale, ContentScale * const yscale) const GLFW_HPP_NOEXCEPT
+		GLFW_HPP_INLINE void GetContentScale(ContentScale * const xscale, ContentScale * const yscale = nullptr) const GLFW_HPP_NOEXCEPT
 		{
 			glfwGetMonitorContentScale(m_monitor, xscale, yscale);
 		}
@@ -3319,9 +3322,16 @@ namespace GLFW_HPP_NAMESPACE
 		}
 
 #ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
-		GLFW_HPP_INLINE std::array<ContentScale, 2> GetContentScale() const GLFW_HPP_NOEXCEPT
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::array<ContentScale, 2> GetContentScale() const GLFW_HPP_NOEXCEPT
 		{
 			std::array<ContentScale, 2> contentscale;
+			glfwGetMonitorContentScale(m_monitor, &contentscale[0], &contentscale[1]);
+			return contentscale;
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::vector<ContentScale> GetContentScaleVector() const GLFW_HPP_NOEXCEPT
+		{
+			std::vector<ContentScale> contentscale(2);
 			glfwGetMonitorContentScale(m_monitor, &contentscale[0], &contentscale[1]);
 			return contentscale;
 		}
@@ -3379,7 +3389,7 @@ namespace GLFW_HPP_NAMESPACE
 		 *  @ingroup monitor
 		 */
 		template <class T>
-		GLFW_HPP_INLINE void SetUserPointer(T * const pointer) const GLFW_HPP_NOEXCEPT
+		GLFW_HPP_INLINE void SetUserPointer(T * const pointer = nullptr) const GLFW_HPP_NOEXCEPT
 		{
 			glfwSetMonitorUserPointer(m_monitor, static_cast<void *>(pointer));
 		}
@@ -3419,7 +3429,9 @@ namespace GLFW_HPP_NAMESPACE
 		template <class T>
 		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE T &GetUserPointerRef() const GLFW_HPP_NOEXCEPT
 		{
-			return *static_cast<T *>(glfwGetMonitorUserPointer(m_monitor));
+			T * const pointer = static_cast<T *>(glfwGetMonitorUserPointer(m_monitor));
+			GLFW_HPP_ASSERT(pointer && "Returning null reference!");
+			return *pointer;
 		}
 
 		/*! @brief Sets the monitor configuration callback.
@@ -3435,7 +3447,7 @@ namespace GLFW_HPP_NAMESPACE
 		 *
 		 *  @callback_signature
 		 *  @code
-		 *  void function_name(GLFW_HPP_NAMESPACE::Monitor& monitor, GLFW_HPP_NAMESPACE::Event event)
+		 *  void function_name(GLFW_HPP_NAMESPACE::Monitor monitor, GLFW_HPP_NAMESPACE::Event event)
 		 *  @endcode
 		 *  For more information about the callback parameters, see the
 		 *  [function pointer type](@ref GLFWmonitorfun).
@@ -3450,7 +3462,13 @@ namespace GLFW_HPP_NAMESPACE
 		 *
 		 *  @ingroup monitor
 		 */
-		GLFW_HPP_INLINE Monitorfun SetCallback(Monitorfun callback) const GLFW_HPP_NOEXCEPT
+		GLFW_HPP_INLINE Monitorfun SetCallback(Monitorfun callback = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Monitorfun>(glfwSetMonitorCallback(reinterpret_cast<GLFWmonitorfun>(callback)));
+		}
+
+		template <Monitorfun callback = nullptr>
+		GLFW_HPP_INLINE Monitorfun SetCallback() const GLFW_HPP_NOEXCEPT
 		{
 			return reinterpret_cast<Monitorfun>(glfwSetMonitorCallback(reinterpret_cast<GLFWmonitorfun>(callback)));
 		}
@@ -3500,7 +3518,10 @@ namespace GLFW_HPP_NAMESPACE
 		{
 			Count count;
 			const Vidmode * const videomodes = reinterpret_cast<const Vidmode *>(glfwGetVideoModes(m_monitor, &count));
-			return {videomodes, (videomodes + count)};
+
+			if (videomodes) GLFW_HPP_LIKELY
+				return {videomodes, (videomodes + count)};
+			return {};
 		}
 #endif
 
@@ -3536,7 +3557,9 @@ namespace GLFW_HPP_NAMESPACE
 
 		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE const Vidmode &GetVideoModeRef() const GLFW_HPP_NOEXCEPT
 		{
-			return *reinterpret_cast<const Vidmode *>(glfwGetVideoMode(m_monitor));
+			const Vidmode * const videomode = reinterpret_cast<const Vidmode *>(glfwGetVideoMode(m_monitor));
+			GLFW_HPP_ASSERT(videomode && "Returning null reference!");
+			return *videomode;
 		}
 
 		/*! @brief Generates a gamma ramp and sets it for the specified monitor.
@@ -3608,7 +3631,9 @@ namespace GLFW_HPP_NAMESPACE
 
 		GLFW_HPP_INLINE const Gammaramp &GetGammaRampRef() const GLFW_HPP_NOEXCEPT
 		{
-			return *reinterpret_cast<const Gammaramp *>(glfwGetGammaRamp(m_monitor));
+			const Gammaramp * const gammaramp = reinterpret_cast<const Gammaramp *>(glfwGetGammaRamp(m_monitor));
+			GLFW_HPP_ASSERT(gammaramp && "Returning null reference!");
+			return *gammaramp;
 		}
 
 		/*! @brief Sets the current gamma ramp for the specified monitor.
@@ -3658,15 +3683,2034 @@ namespace GLFW_HPP_NAMESPACE
 		{
 			glfwSetGammaRamp(m_monitor, reinterpret_cast<const GLFWgammaramp *>(&ramp));
 		}
+		
 	private:
 		GLFWmonitor *m_monitor = nullptr;
 
+		friend class Window;
 #ifdef GLFW_HPP_ENABLE_HASHING
 		friend struct std::hash<Monitor>;
 #endif
 	};
 
 	static_assert(sizeof(Monitor) == sizeof(GLFWmonitor *), "Monitor class and original pointer are different sizes!");
+
+
+	/*! @brief Opaque window object.
+ 	 *
+ 	 *  Opaque window object.
+ 	 *
+ 	 *  @see @ref window_object
+ 	 *
+ 	 *  @since Added in version 3.0.
+ 	 *
+ 	 *  @ingroup window
+ 	 */
+	class Window
+	{
+	public:
+		// Constructors and destructor
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Window(			   ) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Window(const Window &) GLFW_HPP_NOEXCEPT = default;
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR Window(Window &&	   ) GLFW_HPP_NOEXCEPT = default;
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT operator const GLFWwindow *() const GLFW_HPP_NOEXCEPT
+		{
+			return m_window;
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_NON_CONST_METHOD GLFW_HPP_EXPLICIT operator GLFWwindow *() GLFW_HPP_NOEXCEPT
+		{
+			return m_window;
+		}
+
+	private:
+		GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR GLFW_HPP_EXPLICIT Window(GLFWwindow * const pointer) GLFW_HPP_NOEXCEPT
+			: m_window(pointer) {}
+	
+	public:
+		/*! @brief Resets all window hints to their default values.
+		 *
+		 *  This function resets all window hints to their
+		 *  [default values](@ref window_hints_values).
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_hints
+		 *  @sa @ref glfwWindowHint
+		 *  @sa @ref glfwWindowHintString
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		static GLFW_HPP_INLINE void DefaultHints() GLFW_HPP_NOEXCEPT
+		{
+			glfwDefaultWindowHints();
+		}
+
+		/*! @brief Sets the specified window hint to the desired value.
+		 *
+		 *  This function sets hints for the next call to @ref glfwCreateWindow.  The
+		 *  hints, once set, retain their values until changed by a call to this
+		 *  function or @ref glfwDefaultWindowHints, or until the library is terminated.
+		 *
+		 *  Only integer value hints can be set with this function.  String value hints
+		 *  are set with @ref glfwWindowHintString.
+		 *
+		 *  This function does not check whether the specified hint values are valid.
+		 *  If you set hints to invalid values this will instead be reported by the next
+		 *  call to @ref glfwCreateWindow.
+		 *
+		 *  Some hints are platform specific.  These may be set on any platform but they
+		 *  will only affect their specific platform.  Other platforms will ignore them.
+		 *  Setting these hints requires no platform specific headers or functions.
+		 *
+		 *  @param[in] hint The [window hint](@ref window_hints) to set.
+		 *  @param[in] value The new value of the window hint.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::eInvalidEnum.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_hints
+		 *  @sa @ref glfwWindowHintString
+		 *  @sa @ref glfwDefaultWindowHints
+		 *
+		 *  @since Added in version 3.0.  Replaces `glfwOpenWindowHint`.
+		 *
+		 *  @ingroup window
+		 */
+		template <class T>
+		static GLFW_HPP_INLINE void Hint(const WindowHint hint, const T value) GLFW_HPP_NOEXCEPT
+		{
+			glfwWindowHint(static_cast<int>(hint), static_cast<int>(value));
+		}
+
+		static GLFW_HPP_INLINE void Hint(const ClientApi value) GLFW_HPP_NOEXCEPT
+		{
+			glfwWindowHint(static_cast<int>(WindowHint::eClientApi), static_cast<int>(value));
+		}
+
+		static GLFW_HPP_INLINE void Hint(const ContextApi value) GLFW_HPP_NOEXCEPT
+		{
+			glfwWindowHint(static_cast<int>(WindowHint::eContextCreationApi), static_cast<int>(value));
+		}
+
+		static GLFW_HPP_INLINE void Hint(const Robustness value) GLFW_HPP_NOEXCEPT
+		{
+			glfwWindowHint(static_cast<int>(WindowHint::eContextRobustness), static_cast<int>(value));
+		}
+
+		static GLFW_HPP_INLINE void Hint(const ReleaseBehavior value) GLFW_HPP_NOEXCEPT
+		{
+			glfwWindowHint(static_cast<int>(WindowHint::eContextReleaseBehavior), static_cast<int>(value));
+		}
+
+		static GLFW_HPP_INLINE void Hint(const OpenglProfile value) GLFW_HPP_NOEXCEPT
+		{
+			glfwWindowHint(static_cast<int>(WindowHint::eOpenglProfile), static_cast<int>(value));
+		}
+
+		/*! @brief Sets the specified window hint to the desired value.
+		 *
+		 *  This function sets hints for the next call to @ref glfwCreateWindow.  The
+		 *  hints, once set, retain their values until changed by a call to this
+		 *  function or @ref glfwDefaultWindowHints, or until the library is terminated.
+		 *
+		 *  Only string type hints can be set with this function.  Integer value hints
+		 *  are set with @ref glfwWindowHint.
+		 *
+		 *  This function does not check whether the specified hint values are valid.
+		 *  If you set hints to invalid values this will instead be reported by the next
+		 *  call to @ref glfwCreateWindow.
+		 *
+		 *  Some hints are platform specific.  These may be set on any platform but they
+		 *  will only affect their specific platform.  Other platforms will ignore them.
+		 *  Setting these hints requires no platform specific headers or functions.
+		 *
+		 *  @param[in] hint The [window hint](@ref window_hints) to set.
+		 *  @param[in] value The new value of the window hint.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::eInvalidEnum.
+		 *
+		 *  @pointer_lifetime The specified string is copied before this function
+		 *  returns.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_hints
+		 *  @sa @ref glfwWindowHint
+		 *  @sa @ref glfwDefaultWindowHints
+		 *
+		 *  @since Added in version 3.3.
+		 *
+		 *  @ingroup window
+		 */
+		static GLFW_HPP_INLINE void Hint(const WindowHint hint, GLFW_HPP_STRING const * const value) GLFW_HPP_NOEXCEPT
+		{
+#if defined(GLFW_HPP_DISABLE_STANDARD_CONTAINERS)
+			glfwWindowHintString(static_cast<int>(hint), *value);
+#elif GLFW_HPP_CPP_VERSION >= 17
+			glfwWindowHintString(static_cast<int>(hint), value->data());
+#else
+			glfwWindowHintString(static_cast<int>(hint), value->c_str());
+#endif
+		}
+
+		static GLFW_HPP_INLINE void Hint(const WindowHint hint, GLFW_HPP_STRING const &value) GLFW_HPP_NOEXCEPT
+		{
+#if defined(GLFW_HPP_DISABLE_STANDARD_CONTAINERS)
+			glfwWindowHintString(static_cast<int>(hint), value);
+#elif GLFW_HPP_CPP_VERSION >= 17
+			glfwWindowHintString(static_cast<int>(hint), value.data());
+#else
+			glfwWindowHintString(static_cast<int>(hint), value.c_str());
+#endif
+		}
+
+		template <WindowHint hint>
+		static GLFW_HPP_INLINE void Hint(GLFW_HPP_STRING const &value) GLFW_HPP_NOEXCEPT
+		{
+#if defined(GLFW_HPP_DISABLE_STANDARD_CONTAINERS)
+			glfwWindowHintString(static_cast<int>(hint), value);
+#elif GLFW_HPP_CPP_VERSION >= 17
+			glfwWindowHintString(static_cast<int>(hint), value.data());
+#else
+			glfwWindowHintString(static_cast<int>(hint), value.c_str());
+#endif
+		}
+
+		/*! @brief Creates a window and its associated context.
+		 *
+		 *  This function creates a window and its associated OpenGL or OpenGL ES
+		 *  context.  Most of the options controlling how the window and its context
+		 *  should be created are specified with [window hints](@ref window_hints).
+		 *
+		 *  Successful creation does not change which context is current.  Before you
+		 *  can use the newly created context, you need to
+		 *  [make it current](@ref context_current).  For information about the `share`
+		 *  parameter, see @ref context_sharing.
+		 *
+		 *  The created window, framebuffer and context may differ from what you
+		 *  requested, as not all parameters and hints are
+		 *  [hard constraints](@ref window_hints_hard).  This includes the size of the
+		 *  window, especially for full screen windows.  To query the actual attributes
+		 *  of the created window, framebuffer and context, see @ref
+		 *  glfwGetWindowAttrib, @ref glfwGetWindowSize and @ref glfwGetFramebufferSize.
+		 *
+		 *  To create a full screen window, you need to specify the monitor the window
+		 *  will cover.  If no monitor is specified, the window will be windowed mode.
+		 *  Unless you have a way for the user to choose a specific monitor, it is
+		 *  recommended that you pick the primary monitor.  For more information on how
+		 *  to query connected monitors, see @ref monitor_monitors.
+		 *
+		 *  For full screen windows, the specified size becomes the resolution of the
+		 *  window's _desired video mode_.  As long as a full screen window is not
+		 *  iconified, the supported video mode most closely matching the desired video
+		 *  mode is set for the specified monitor.  For more information about full
+		 *  screen windows, including the creation of so called _windowed full screen_
+		 *  or _borderless full screen_ windows, see @ref window_windowed_full_screen.
+		 *
+		 *  Once you have created the window, you can switch it between windowed and
+		 *  full screen mode with @ref glfwSetWindowMonitor.  This will not affect its
+		 *  OpenGL or OpenGL ES context.
+		 *
+		 *  By default, newly created windows use the placement recommended by the
+		 *  window system.  To create the window at a specific position, make it
+		 *  initially invisible using the [GLFW_VISIBLE](@ref GLFW_HPP_NAMESPACE::WindowHint::eVisible) window
+		 *  hint, set its [position](@ref window_pos) and then [show](@ref window_hide)
+		 *  it.
+		 *
+		 *  As long as at least one full screen window is not iconified, the screensaver
+		 *  is prohibited from starting.
+		 *
+		 *  Window systems put limits on window sizes.  Very large or very small window
+		 *  dimensions may be overridden by the window system on creation.  Check the
+		 *  actual [size](@ref window_size) after creation.
+		 *
+		 *  The [swap interval](@ref buffer_swap) is not set during window creation and
+		 *  the initial value may vary depending on driver settings and defaults.
+		 *
+		 *  @param[in] width The desired width, in screen coordinates, of the window.
+		 *  This must be greater than zero.
+		 *  @param[in] height The desired height, in screen coordinates, of the window.
+		 *  This must be greater than zero.
+		 *  @param[in] title The initial, UTF-8 encoded window title.
+		 *  @param[in] monitor The monitor to use for full screen mode, or `nullptr` for
+		 *  windowed mode.
+		 *  @param[in] share The window whose context to share resources with, or `nullptr`
+		 *  to not share resources.
+		 *  @return The handle of the created window, or `nullptr` if an
+		 *  [error](@ref error_handling) occurred.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized, @ref
+		 *  GLFW_HPP_NAMESPACE::Error::eInvalidEnum, @ref GLFW_HPP_NAMESPACE::Error::eInvalidValue, @ref GLFW_HPP_NAMESPACE::Error::eApiUnavailable, @ref
+		 *  GLFW_HPP_NAMESPACE::Error::eVersionUnavailable, @ref GLFW_HPP_NAMESPACE::Error::eFormatUnavailable and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark @win32 Window creation will fail if the Microsoft GDI software
+		 *  OpenGL implementation is the only one available.
+		 *
+		 *  @remark @win32 If the executable has an icon resource named `GLFW_ICON,` it
+		 *  will be set as the initial icon for the window.  If no such icon is present,
+		 *  the `IDI_APPLICATION` icon will be used instead.  To set a different icon,
+		 *  see @ref glfwSetWindowIcon.
+		 *
+		 *  @remark @win32 The context to share resources with must not be current on
+		 *  any other thread.
+		 *
+		 *  @remark @macos The OS only supports forward-compatible core profile contexts
+		 *  for OpenGL versions 3.2 and later.  Before creating an OpenGL context of
+		 *  version 3.2 or later you must set the
+		 *  [GLFW_OPENGL_FORWARD_COMPAT](@ref GLFW_HPP_NAMESPACE::WindowHint::eOpenglForwardCompat) and
+		 *  [GLFW_OPENGL_PROFILE](@ref GLFW_HPP_NAMESPACE::WindowHint::eOpenglProfile) hints accordingly.
+		 *  OpenGL 3.0 and 3.1 contexts are not supported at all on macOS.
+		 *
+		 *  @remark @macos The GLFW window has no icon, as it is not a document
+		 *  window, but the dock icon will be the same as the application bundle's icon.
+		 *  For more information on bundles, see the
+		 *  [Bundle Programming Guide](https://developer.apple.com/library/mac/documentation/CoreFoundation/Conceptual/CFBundles/)
+		 *  in the Mac Developer Library.
+		 *
+		 *  @remark @macos The first time a window is created the menu bar is created.
+		 *  If GLFW finds a `MainMenu.nib` it is loaded and assumed to contain a menu
+		 *  bar.  Otherwise a minimal menu bar is created manually with common commands
+		 *  like Hide, Quit and About.  The About entry opens a minimal about dialog
+		 *  with information from the application's bundle.  Menu bar creation can be
+		 *  disabled entirely with the @ref GLFW_HPP_NAMESPACE::InitHint::CocoaMenubar init hint.
+		 *
+		 *  @remark @macos On OS X 10.10 and later the window frame will not be rendered
+		 *  at full resolution on Retina displays unless the
+		 *  [GLFW_COCOA_RETINA_FRAMEBUFFER](@ref GLFW_HPP_NAMESPACE::WindowHint::eCocoaRetinaFramebuffer)
+		 *  hint is `true` and the `NSHighResolutionCapable` key is enabled in the
+		 *  application bundle's `Info.plist`.  For more information, see
+		 *  [High Resolution Guidelines for OS X](https://developer.apple.com/library/mac/documentation/GraphicsAnimation/Conceptual/HighResolutionOSX/Explained/Explained.html)
+		 *  in the Mac Developer Library.  The GLFW test and example programs use
+		 *  a custom `Info.plist` template for this, which can be found as
+		 *  `CMake/MacOSXBundleInfo.plist.in` in the source tree.
+		 *
+		 *  @remark @macos When activating frame autosaving with
+		 *  [GLFW_COCOA_FRAME_NAME](@ref GLFW_HPP_NAMESPACE::WindowHint::eCocoaFrameName), the specified
+		 *  window size and position may be overridden by previously saved values.
+		 *
+		 *  @remark @x11 Some window managers will not respect the placement of
+		 *  initially hidden windows.
+		 *
+		 *  @remark @x11 Due to the asynchronous nature of X11, it may take a moment for
+		 *  a window to reach its requested state.  This means you may not be able to
+		 *  query the final size, position or other attributes directly after window
+		 *  creation.
+		 *
+		 *  @remark @x11 The class part of the `WM_CLASS` window property will by
+		 *  default be set to the window title passed to this function.  The instance
+		 *  part will use the contents of the `RESOURCE_NAME` environment variable, if
+		 *  present and not empty, or fall back to the window title.  Set the
+		 *  [GLFW_X11_CLASS_NAME](@ref GLFW_HPP_NAMESPACE::WindowHint::eX11ClassName) and
+		 *  [GLFW_X11_INSTANCE_NAME](@ref GLFW_HPP_NAMESPACE::WindowHint::eX11InstanceName) window hints to
+		 *  override this.
+		 *
+		 *  @remark @wayland Compositors should implement the xdg-decoration protocol
+		 *  for GLFW to decorate the window properly.  If this protocol isn't
+		 *  supported, or if the compositor prefers client-side decorations, a very
+		 *  simple fallback frame will be drawn using the wp_viewporter protocol.  A
+		 *  compositor can still emit close, maximize or fullscreen events, using for
+		 *  instance a keybind mechanism.  If neither of these protocols is supported,
+		 *  the window won't be decorated.
+		 *
+		 *  @remark @wayland A full screen window will not attempt to change the mode,
+		 *  no matter what the requested size or refresh rate.
+		 *
+		 *  @remark @wayland Screensaver inhibition requires the idle-inhibit protocol
+		 *  to be implemented in the user's compositor.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_creation
+		 *  @sa @ref glfwDestroyWindow
+		 *
+		 *  @since Added in version 3.0.  Replaces `glfwOpenWindow`.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_NODISCARD("") static GLFW_HPP_INLINE Window Create(const ScreenCoordinate width, const ScreenCoordinate height, GLFW_HPP_STRING const * const title, Monitor * const monitor = nullptr, Window * const share = nullptr) GLFW_HPP_NOEXCEPT
+		{
+#ifdef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+			return Window{glfwCreateWindow(width, height, *title, static_cast<GLFWmonitor *>(*monitor), static_cast<GLFWwindow *>(*share))};
+#elif GLFW_HPP_CPP_VERSION >= 17
+			return Window{glfwCreateWindow(width, height, title->data(), static_cast<GLFWmonitor *>(*monitor), static_cast<GLFWwindow *>(*share))};
+#else
+			return Window{glfwCreateWindow(width, height, title->c_str(), static_cast<GLFWmonitor *>(*monitor), static_cast<GLFWwindow *>(*share))};
+#endif
+		}
+
+		GLFW_HPP_NODISCARD("") static GLFW_HPP_INLINE Window Create(const ScreenCoordinate width, const ScreenCoordinate height, GLFW_HPP_STRING const &title, Monitor &monitor, Window &share) GLFW_HPP_NOEXCEPT
+		{
+#ifdef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+			return Window{glfwCreateWindow(width, height, title, static_cast<GLFWmonitor *>(monitor), static_cast<GLFWwindow *>(share))};
+#elif GLFW_HPP_CPP_VERSION >= 17
+			return Window{glfwCreateWindow(width, height, title.data(), static_cast<GLFWmonitor *>(monitor), static_cast<GLFWwindow *>(share))};
+#else
+			return Window{glfwCreateWindow(width, height, title.c_str(), static_cast<GLFWmonitor *>(monitor), static_cast<GLFWwindow *>(share))};
+#endif
+		}
+
+		template <ScreenCoordinate width, ScreenCoordinate height>
+		GLFW_HPP_NODISCARD("") static GLFW_HPP_INLINE Window Create(GLFW_HPP_STRING const * const title, Monitor * const monitor = nullptr, Window * const share = nullptr) GLFW_HPP_NOEXCEPT
+		{
+#ifdef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+			return Window{glfwCreateWindow(width, height, *title, static_cast<GLFWmonitor *>(*monitor), static_cast<GLFWwindow *>(*share))};
+#elif GLFW_HPP_CPP_VERSION >= 17
+			return Window{glfwCreateWindow(width, height, title->data(), static_cast<GLFWmonitor *>(*monitor), static_cast<GLFWwindow *>(*share))};
+#else
+			return Window{glfwCreateWindow(width, height, title->c_str(), static_cast<GLFWmonitor *>(*monitor), static_cast<GLFWwindow *>(*share))};
+#endif
+		}
+
+		template <ScreenCoordinate width, ScreenCoordinate height>
+		GLFW_HPP_NODISCARD("") static GLFW_HPP_INLINE Window Create(GLFW_HPP_STRING const &title, Monitor &monitor, Window &share) GLFW_HPP_NOEXCEPT
+		{
+#ifdef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+			return Window{glfwCreateWindow(width, height, title, static_cast<GLFWmonitor *>(monitor), static_cast<GLFWwindow *>(share))};
+#elif GLFW_HPP_CPP_VERSION >= 17
+			return Window{glfwCreateWindow(width, height, title.data(), static_cast<GLFWmonitor *>(monitor), static_cast<GLFWwindow *>(share))};
+#else
+			return Window{glfwCreateWindow(width, height, title.c_str(), static_cast<GLFWmonitor *>(monitor), static_cast<GLFWwindow *>(share))};
+#endif
+		}
+
+		GLFW_HPP_NODISCARD("") Window(const ScreenCoordinate width, const ScreenCoordinate height, GLFW_HPP_STRING const * const title, Monitor * const monitor = nullptr, Window * const share = nullptr) GLFW_HPP_NOEXCEPT
+#ifdef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+			: m_window(glfwCreateWindow(width, height, *title, static_cast<GLFWmonitor *>(*monitor), static_cast<GLFWwindow *>(*share))) {}
+#elif GLFW_HPP_CPP_VERSION >= 17
+			: m_window(glfwCreateWindow(width, height, title->data(), static_cast<GLFWmonitor *>(*monitor), static_cast<GLFWwindow *>(*share))) {}
+#else
+			: m_window(glfwCreateWindow(width, height, title->c_str(), static_cast<GLFWmonitor *>(*monitor), static_cast<GLFWwindow *>(*share))) {}
+#endif
+		
+		GLFW_HPP_NODISCARD("") Window(const ScreenCoordinate width, const ScreenCoordinate height, GLFW_HPP_STRING const &title, Monitor &monitor, Window &share) GLFW_HPP_NOEXCEPT
+#ifdef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+			: m_window(glfwCreateWindow(width, height, title, static_cast<GLFWmonitor *>(monitor), static_cast<GLFWwindow *>(share))) {}
+#elif GLFW_HPP_CPP_VERSION >= 17
+			: m_window(glfwCreateWindow(width, height, title.data(), static_cast<GLFWmonitor *>(monitor), static_cast<GLFWwindow *>(share))) {}
+#else
+			: m_window(glfwCreateWindow(width, height, title.c_str(), static_cast<GLFWmonitor *>(monitor), static_cast<GLFWwindow *>(share))) {}
+#endif
+
+		template <ScreenCoordinate width, ScreenCoordinate height>
+		GLFW_HPP_NODISCARD("") Window(GLFW_HPP_STRING const * const title, Monitor * const monitor = nullptr, Window * const share = nullptr) GLFW_HPP_NOEXCEPT
+#ifdef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+			: m_window(glfwCreateWindow(width, height, *title, static_cast<GLFWmonitor *>(*monitor), static_cast<GLFWwindow *>(*share))) {}
+#elif GLFW_HPP_CPP_VERSION >= 17
+			: m_window(glfwCreateWindow(width, height, title->data(), static_cast<GLFWmonitor *>(*monitor), static_cast<GLFWwindow *>(*share))) {}
+#else
+			: m_window(glfwCreateWindow(width, height, title->c_str(), static_cast<GLFWmonitor *>(*monitor), static_cast<GLFWwindow *>(*share))) {}
+#endif
+		
+		template <ScreenCoordinate width, ScreenCoordinate height>
+		GLFW_HPP_NODISCARD("") Window(GLFW_HPP_STRING const &title, Monitor &monitor, Window &share) GLFW_HPP_NOEXCEPT
+#ifdef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+			: m_window(glfwCreateWindow(width, height, title, static_cast<GLFWmonitor *>(monitor), static_cast<GLFWwindow *>(share))) {}
+#elif GLFW_HPP_CPP_VERSION >= 17
+			: m_window(glfwCreateWindow(width, height, title.data(), static_cast<GLFWmonitor *>(monitor), static_cast<GLFWwindow *>(share))) {}
+#else
+			: m_window(glfwCreateWindow(width, height, title.c_str(), static_cast<GLFWmonitor *>(monitor), static_cast<GLFWwindow *>(share))) {}
+#endif
+
+		/*! @brief Destroys the specified window and its context.
+		 *
+		 *  This function destroys the specified window and its context.  On calling
+		 *  this function, no further callbacks will be called for that window.
+		 *
+		 *  If the context of the specified window is current on the main thread, it is
+		 *  detached before being destroyed.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @note The context of the specified window must not be current on any other
+		 *  thread when this function is called.
+		 *
+		 *  @reentrancy This function must not be called from a callback.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_creation
+		 *  @sa @ref glfwCreateWindow
+		 *
+		 *  @since Added in version 3.0.  Replaces `glfwCloseWindow`.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void Destroy() const GLFW_HPP_NOEXCEPT
+		{
+			GLFW_HPP_ASSERT(m_window && "Destroying null window!");
+			glfwDestroyWindow(m_window);
+		}
+
+		~Window() GLFW_HPP_NOEXCEPT
+		{
+			GLFW_HPP_ASSERT(m_window && "Destroying null window!");
+			glfwDestroyWindow(m_window);
+		}
+
+		/*! @brief Checks the close flag of the specified window.
+		 *
+		 *  This function returns the value of the close flag of the specified window.
+		 *
+		 *  @return The value of the close flag.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function may be called from any thread.  Access is not
+		 *  synchronized.
+		 *
+		 *  @sa @ref window_close
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE bool ShouldClose() const GLFW_HPP_NOEXCEPT
+		{
+			return glfwWindowShouldClose(m_window);
+		}
+
+		/*! @brief Sets the close flag of the specified window.
+		 *
+		 *  This function sets the value of the close flag of the specified window.
+		 *  This can be used to override the user's attempt to close the window, or
+		 *  to signal that it should be closed.
+		 *
+		 *  @param[in] value The new value.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function may be called from any thread.  Access is not
+		 *  synchronized.
+		 *
+		 *  @sa @ref window_close
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void SetShouldClose(const bool value) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowShouldClose(m_window, value);
+		}
+
+		template <bool value>
+		GLFW_HPP_INLINE void SetShouldClose() const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowShouldClose(m_window, value);
+		}
+
+		/*! @brief Sets the title of the specified window.
+		 *
+		 *  This function sets the window title, encoded as UTF-8, of the specified
+		 *  window.
+		 *
+		 *  @param[in] title The UTF-8 encoded window title.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark @macos The window title will not be updated until the next time you
+		 *  process events.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_title
+		 *
+		 *  @since Added in version 1.0.
+		 *  @glfw3 Added window handle parameter.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void SetTitle(GLFW_HPP_STRING const * const title) const GLFW_HPP_NOEXCEPT
+		{
+#ifdef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+			glfwSetWindowTitle(m_window, *title);
+#elif GLFW_HPP_CPP_VERSION >= 17
+			glfwSetWindowTitle(m_window, title->data());
+#else
+			glfwSetWindowTitle(m_window, title->c_str());
+#endif
+		}
+
+		GLFW_HPP_INLINE void SetTitle(GLFW_HPP_STRING const &title) const GLFW_HPP_NOEXCEPT
+		{
+#ifdef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+			glfwSetWindowTitle(m_window, title);
+#elif GLFW_HPP_CPP_VERSION >= 17
+			glfwSetWindowTitle(m_window, title.data());
+#else
+			glfwSetWindowTitle(m_window, title.c_str());
+#endif
+		}
+
+		/*! @brief Sets the icon for the specified window.
+		 *
+		 *  This function sets the icon of the specified window.  If passed an array of
+		 *  candidate images, those of or closest to the sizes desired by the system are
+		 *  selected.  If no images are specified, the window reverts to its default
+		 *  icon.
+		 *
+		 *  The pixels are 32-bit, little-endian, non-premultiplied RGBA, i.e. eight
+		 *  bits per channel with the red channel first.  They are arranged canonically
+		 *  as packed sequential rows, starting from the top-left corner.
+		 *
+		 *  The desired image sizes varies depending on platform and system settings.
+		 *  The selected images will be rescaled as needed.  Good sizes include 16x16,
+		 *  32x32 and 48x48.
+		 *
+		 *  @param[in] count The number of images in the specified array, or zero to
+		 *  revert to the default window icon.
+		 *  @param[in] images The images to create the icon from.  This is ignored if
+		 *  count is zero.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @pointer_lifetime The specified image data is copied before this function
+		 *  returns.
+		 *
+		 *  @remark @macos The GLFW window has no icon, as it is not a document
+		 *  window, so this function does nothing.  The dock icon will be the same as
+		 *  the application bundle's icon.  For more information on bundles, see the
+		 *  [Bundle Programming Guide](https://developer.apple.com/library/mac/documentation/CoreFoundation/Conceptual/CFBundles/)
+		 *  in the Mac Developer Library.
+		 *
+		 *  @remark @wayland There is no existing protocol to change an icon, the
+		 *  window will thus inherit the one defined in the application's desktop file.
+		 *  This function always emits @ref GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_icon
+		 *
+		 *  @since Added in version 3.2.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void SetIcon(const Count count, const Image * const images) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowIcon(m_window, count, reinterpret_cast<const GLFWimage *>(images));
+		}
+
+		template <Count count>
+		GLFW_HPP_INLINE void SetIcon(const Image * const images) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowIcon(m_window, count, reinterpret_cast<const GLFWimage *>(images));
+		}
+
+		template <Count count = 1>
+		GLFW_HPP_INLINE void SetIcon(const Image &image) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowIcon(m_window, count, reinterpret_cast<const GLFWimage *>(&image));
+		}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		template <size_t count>
+		GLFW_HPP_INLINE void SetIcon(const std::array<Image, count> &images) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowIcon(m_window, count, reinterpret_cast<const GLFWimage *>(images.data()));
+		}
+
+		GLFW_HPP_INLINE void SetIcon(const std::vector<Image> &images) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowIcon(m_window, static_cast<Count>(images.size()), reinterpret_cast<const GLFWimage *>(images.data()));
+		}
+#endif
+
+		/*! @brief Retrieves the position of the content area of the specified window.
+		 *
+		 *  This function retrieves the position, in screen coordinates, of the
+		 *  upper-left corner of the content area of the specified window.
+		 *
+		 *  Any or all of the position arguments may be `nullptr`.  If an error occurs, all
+		 *  non-`nullptr` position arguments will be set to zero.
+		 *
+		 *  @param[out] xpos Where to store the x-coordinate of the upper-left corner of
+		 *  the content area, or `nullptr`.
+		 *  @param[out] ypos Where to store the y-coordinate of the upper-left corner of
+		 *  the content area, or `nullptr`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark @wayland There is no way for an application to retrieve the global
+		 *  position of its windows, this function will always emit @ref
+		 *  GLFW_PLATFORM_ERROR.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_pos
+		 *  @sa @ref glfwSetWindowPos
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void GetPos(ScreenCoordinate * const xpos, ScreenCoordinate * const ypos = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetWindowPos(m_window, xpos, ypos);
+		}
+
+		GLFW_HPP_INLINE void GetPos(ScreenCoordinate &xpos, ScreenCoordinate &ypos) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetWindowPos(m_window, &xpos, &ypos);
+		}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::array<ScreenCoordinate, 2> GetPos() const GLFW_HPP_NOEXCEPT
+		{
+			std::array<ScreenCoordinate, 2> position;
+			glfwGetWindowPos(m_window, &position[0], &position[1]);
+			return position;
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::vector<ScreenCoordinate> GetPosVector() const GLFW_HPP_NOEXCEPT
+		{
+			std::vector<ScreenCoordinate> position(2);
+			glfwGetWindowPos(m_window, &position[0], &position[1]);
+			return position;
+		}
+#endif
+
+		/*! @brief Sets the position of the content area of the specified window.
+		 *
+		 *  This function sets the position, in screen coordinates, of the upper-left
+		 *  corner of the content area of the specified windowed mode window.  If the
+		 *  window is a full screen window, this function does nothing.
+		 *
+		 *  __Do not use this function__ to move an already visible window unless you
+		 *  have very good reasons for doing so, as it will confuse and annoy the user.
+		 *
+		 *  The window manager may put limits on what positions are allowed.  GLFW
+		 *  cannot and should not override these limits.
+		 *
+		 *  @param[in] xpos The x-coordinate of the upper-left corner of the content area.
+		 *  @param[in] ypos The y-coordinate of the upper-left corner of the content area.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark @wayland There is no way for an application to set the global
+		 *  position of its windows, this function will always emit @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_pos
+		 *  @sa @ref glfwGetWindowPos
+		 *
+		 *  @since Added in version 1.0.
+		 *  @glfw3 Added window handle parameter.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void SetPos(const ScreenCoordinate xpos, const ScreenCoordinate ypos) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowPos(m_window, xpos, ypos);
+		}
+
+		template <ScreenCoordinate xpos, ScreenCoordinate ypos>
+		GLFW_HPP_INLINE void SetPos() const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowPos(m_window, xpos, ypos);
+		}
+
+		/*! @brief Retrieves the size of the content area of the specified window.
+		 *
+		 *  This function retrieves the size, in screen coordinates, of the content area
+		 *  of the specified window.  If you wish to retrieve the size of the
+		 *  framebuffer of the window in pixels, see @ref glfwGetFramebufferSize.
+		 *
+		 *  Any or all of the size arguments may be `nullptr`.  If an error occurs, all
+		 *  non-`nullptr` size arguments will be set to zero.
+		 *
+		 *  @param[out] width Where to store the width, in screen coordinates, of the
+		 *  content area, or `nullptr`.
+		 *  @param[out] height Where to store the height, in screen coordinates, of the
+		 *  content area, or `nullptr`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_size
+		 *  @sa @ref glfwSetWindowSize
+		 *
+		 *  @since Added in version 1.0.
+		 *  @glfw3 Added window handle parameter.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void GetSize(ScreenCoordinate * const width, ScreenCoordinate * const height = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetWindowSize(m_window, width, height);
+		}
+
+		GLFW_HPP_INLINE void GetSize(ScreenCoordinate &width, ScreenCoordinate &height) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetWindowSize(m_window, &width, &height);
+		}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::array<ScreenCoordinate, 2> GetSize() const GLFW_HPP_NOEXCEPT
+		{
+			std::array<ScreenCoordinate, 2> size;
+			glfwGetWindowSize(m_window, &size[0], &size[1]);
+			return size;
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::vector<ScreenCoordinate> GetSizeVector() const GLFW_HPP_NOEXCEPT
+		{
+			std::vector<ScreenCoordinate> size(2);
+			glfwGetWindowSize(m_window, &size[0], &size[1]);
+			return size;
+		}
+#endif
+
+		/*! @brief Sets the size limits of the specified window.
+		 *
+		 *  This function sets the size limits of the content area of the specified
+		 *  window.  If the window is full screen, the size limits only take effect
+		 *  once it is made windowed.  If the window is not resizable, this function
+		 *  does nothing.
+		 *
+		 *  The size limits are applied immediately to a windowed mode window and may
+		 *  cause it to be resized.
+		 *
+		 *  The maximum dimensions must be greater than or equal to the minimum
+		 *  dimensions and all must be greater than or equal to zero.
+		 *
+		 *  @param[in] minwidth The minimum width, in screen coordinates, of the content
+		 *  area, or `GLFW_DONT_CARE`.
+		 *  @param[in] minheight The minimum height, in screen coordinates, of the
+		 *  content area, or `GLFW_DONT_CARE`.
+		 *  @param[in] maxwidth The maximum width, in screen coordinates, of the content
+		 *  area, or `GLFW_DONT_CARE`.
+		 *  @param[in] maxheight The maximum height, in screen coordinates, of the
+		 *  content area, or `GLFW_DONT_CARE`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized, @ref
+		 *  GLFW_HPP_NAMESPACE::Error::eInvalidValue and @ref GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark If you set size limits and an aspect ratio that conflict, the
+		 *  results are undefined.
+		 *
+		 *  @remark @wayland The size limits will not be applied until the window is
+		 *  actually resized, either by the user or by the compositor.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_sizelimits
+		 *  @sa @ref glfwSetWindowAspectRatio
+		 *
+		 *  @since Added in version 3.2.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void SetSizeLimits(const ScreenCoordinate minwidth = GLFW_DONT_CARE, const ScreenCoordinate minheight = GLFW_DONT_CARE, const ScreenCoordinate maxwidth = GLFW_DONT_CARE, const ScreenCoordinate maxheight = GLFW_DONT_CARE) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowSizeLimits(m_window, minwidth, minheight, maxwidth, maxheight);
+		}
+
+		template <ScreenCoordinate minwidth = GLFW_DONT_CARE, ScreenCoordinate minheight = GLFW_DONT_CARE, ScreenCoordinate maxwidth = GLFW_DONT_CARE, ScreenCoordinate maxheight = GLFW_DONT_CARE>
+		GLFW_HPP_INLINE void SetSizeLimits() const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowSizeLimits(m_window, minwidth, minheight, maxwidth, maxheight);
+		}
+
+		/*! @brief Sets the aspect ratio of the specified window.
+		 *
+		 *  This function sets the required aspect ratio of the content area of the
+		 *  specified window.  If the window is full screen, the aspect ratio only takes
+		 *  effect once it is made windowed.  If the window is not resizable, this
+		 *  function does nothing.
+		 *
+		 *  The aspect ratio is specified as a numerator and a denominator and both
+		 *  values must be greater than zero.  For example, the common 16:9 aspect ratio
+		 *  is specified as 16 and 9, respectively.
+		 *
+		 *  If the numerator and denominator is set to `GLFW_DONT_CARE` then the aspect
+		 *  ratio limit is disabled.
+		 *
+		 *  The aspect ratio is applied immediately to a windowed mode window and may
+		 *  cause it to be resized.
+		 *
+		 *  @param[in] numer The numerator of the desired aspect ratio, or
+		 *  `GLFW_DONT_CARE`.
+		 *  @param[in] denom The denominator of the desired aspect ratio, or
+		 *  `GLFW_DONT_CARE`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized, @ref
+		 *  GLFW_HPP_NAMESPACE::Error::eInvalidValue and @ref GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark If you set size limits and an aspect ratio that conflict, the
+		 *  results are undefined.
+		 *
+		 *  @remark @wayland The aspect ratio will not be applied until the window is
+		 *  actually resized, either by the user or by the compositor.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_sizelimits
+		 *  @sa @ref glfwSetWindowSizeLimits
+		 *
+		 *  @since Added in version 3.2.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void SetAspectRatio(const ScreenCoordinate numer = GLFW_DONT_CARE, const ScreenCoordinate denom = GLFW_DONT_CARE) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowAspectRatio(m_window, numer, denom);
+		}
+
+		template <ScreenCoordinate numer = GLFW_DONT_CARE, ScreenCoordinate denom = GLFW_DONT_CARE>
+		GLFW_HPP_INLINE void SetAspectRatio() const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowAspectRatio(m_window, numer, denom);
+		}
+
+		/*! @brief Sets the size of the content area of the specified window.
+		 *
+		 *  This function sets the size, in screen coordinates, of the content area of
+		 *  the specified window.
+		 *
+		 *  For full screen windows, this function updates the resolution of its desired
+		 *  video mode and switches to the video mode closest to it, without affecting
+		 *  the window's context.  As the context is unaffected, the bit depths of the
+		 *  framebuffer remain unchanged.
+		 *
+		 *  If you wish to update the refresh rate of the desired video mode in addition
+		 *  to its resolution, see @ref glfwSetWindowMonitor.
+		 *
+		 *  The window manager may put limits on what sizes are allowed.  GLFW cannot
+		 *  and should not override these limits.
+		 *
+		 *  @param[in] width The desired width, in screen coordinates, of the window
+		 *  content area.
+		 *  @param[in] height The desired height, in screen coordinates, of the window
+		 *  content area.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark @wayland A full screen window will not attempt to change the mode,
+		 *  no matter what the requested size.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_size
+		 *  @sa @ref glfwGetWindowSize
+		 *  @sa @ref glfwSetWindowMonitor
+		 *
+		 *  @since Added in version 1.0.
+		 *  @glfw3 Added window handle parameter.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void SetSize(const ScreenCoordinate width, const ScreenCoordinate height) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowSize(m_window, width, height);
+		}
+
+		template <ScreenCoordinate width, ScreenCoordinate height>
+		GLFW_HPP_INLINE void SetSize() const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowSize(m_window, width, height);
+		}
+
+		/*! @brief Retrieves the size of the framebuffer of the specified window.
+		 *
+		 *  This function retrieves the size, in pixels, of the framebuffer of the
+		 *  specified window.  If you wish to retrieve the size of the window in screen
+		 *  coordinates, see @ref glfwGetWindowSize.
+		 *
+		 *  Any or all of the size arguments may be `nullptr`.  If an error occurs, all
+		 *  non-`nullptr` size arguments will be set to zero.
+		 *
+		 *  @param[out] width Where to store the width, in pixels, of the framebuffer,
+		 *  or `nullptr`.
+		 *  @param[out] height Where to store the height, in pixels, of the framebuffer,
+		 *  or `nullptr`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_fbsize
+		 *  @sa @ref glfwSetFramebufferSizeCallback
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void GetFramebufferSize(Pixel * const width, Pixel * const height = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetFramebufferSize(m_window, width, height);
+		}
+
+		GLFW_HPP_INLINE void GetFramebufferSize(Pixel &width, Pixel &height) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetFramebufferSize(m_window, &width, &height);
+		}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::array<Pixel, 2> GetFramebufferSize() const GLFW_HPP_NOEXCEPT
+		{
+			std::array<Pixel, 2> framebuffersize;
+			glfwGetFramebufferSize(m_window, &framebuffersize[0], &framebuffersize[1]);
+			return framebuffersize;
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::vector<Pixel> GetFramebufferSizeVector() const GLFW_HPP_NOEXCEPT
+		{
+			std::vector<Pixel> framebuffersize(2);
+			glfwGetFramebufferSize(m_window, &framebuffersize[0], &framebuffersize[1]);
+			return framebuffersize;
+		}
+#endif
+
+		/*! @brief Retrieves the size of the frame of the window.
+		 *
+		 *  This function retrieves the size, in screen coordinates, of each edge of the
+		 *  frame of the specified window.  This size includes the title bar, if the
+		 *  window has one.  The size of the frame may vary depending on the
+		 *  [window-related hints](@ref window_hints_wnd) used to create it.
+		 *
+		 *  Because this function retrieves the size of each window frame edge and not
+		 *  the offset along a particular coordinate axis, the retrieved values will
+		 *  always be zero or positive.
+		 *
+		 *  Any or all of the size arguments may be `nullptr`.  If an error occurs, all
+		 *  non-`nullptr` size arguments will be set to zero.
+		 *
+		 *  @param[out] left Where to store the size, in screen coordinates, of the left
+		 *  edge of the window frame, or `nullptr`.
+		 *  @param[out] top Where to store the size, in screen coordinates, of the top
+		 *  edge of the window frame, or `nullptr`.
+		 *  @param[out] right Where to store the size, in screen coordinates, of the
+		 *  right edge of the window frame, or `nullptr`.
+		 *  @param[out] bottom Where to store the size, in screen coordinates, of the
+		 *  bottom edge of the window frame, or `nullptr`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_size
+		 *
+		 *  @since Added in version 3.1.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void GetFrameSize(ScreenCoordinate * const left, ScreenCoordinate * const top = nullptr, ScreenCoordinate * const right = nullptr, ScreenCoordinate * const bottom = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetWindowFrameSize(m_window, left, top, right, bottom);
+		}
+
+		GLFW_HPP_INLINE void GetFrameSize(ScreenCoordinate &left, ScreenCoordinate &top, ScreenCoordinate &right, ScreenCoordinate &bottom) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetWindowFrameSize(m_window, &left, &top, &right, &bottom);
+		}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::array<ScreenCoordinate, 4> GetFrameSize() const GLFW_HPP_NOEXCEPT
+		{
+			std::array<ScreenCoordinate, 4> framesize;
+			glfwGetWindowFrameSize(m_window, &framesize[0], &framesize[1], &framesize[2], &framesize[3]);
+			return framesize;
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::vector<ScreenCoordinate> GetFrameSizeVector() const GLFW_HPP_NOEXCEPT
+		{
+			std::vector<ScreenCoordinate> framesize(4);
+			glfwGetWindowFrameSize(m_window, &framesize[0], &framesize[1], &framesize[2], &framesize[3]);
+			return framesize;
+		}
+#endif
+
+		/*! @brief Retrieves the content scale for the specified window.
+		 *
+		 *  This function retrieves the content scale for the specified window.  The
+		 *  content scale is the ratio between the current DPI and the platform's
+		 *  default DPI.  This is especially important for text and any UI elements.  If
+		 *  the pixel dimensions of your UI scaled by this look appropriate on your
+		 *  machine then it should appear at a reasonable size on other machines
+		 *  regardless of their DPI and scaling settings.  This relies on the system DPI
+		 *  and scaling settings being somewhat correct.
+		 *
+		 *  On systems where each monitors can have its own content scale, the window
+		 *  content scale will depend on which monitor the system considers the window
+		 *  to be on.
+		 *
+		 *  @param[out] xscale Where to store the x-axis content scale, or `nullptr`.
+		 *  @param[out] yscale Where to store the y-axis content scale, or `nullptr`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_scale
+		 *  @sa @ref glfwSetWindowContentScaleCallback
+		 *  @sa @ref glfwGetMonitorContentScale
+		 *
+		 *  @since Added in version 3.3.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void GetContentScale(ContentScale * const xscale, ContentScale * const yscale = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetWindowContentScale(m_window, xscale, yscale);
+		}
+
+		GLFW_HPP_INLINE void GetContentScale(ContentScale &xscale, ContentScale &yscale) const GLFW_HPP_NOEXCEPT
+		{
+			glfwGetWindowContentScale(m_window, &xscale, &yscale);
+		}
+
+#ifndef GLFW_HPP_DISABLE_STANDARD_CONTAINERS
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::array<ContentScale, 2> GetContentScale() const GLFW_HPP_NOEXCEPT
+		{
+			std::array<ContentScale, 2> contentscale;
+			glfwGetWindowContentScale(m_window, &contentscale[0], &contentscale[1]);
+			return contentscale;
+		}
+
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE std::vector<ContentScale> GetContentScaleVector() const GLFW_HPP_NOEXCEPT
+		{
+			std::vector<ContentScale> contentscale(2);
+			glfwGetWindowContentScale(m_window, &contentscale[0], &contentscale[1]);
+			return contentscale;
+		}
+#endif
+
+		/*! @brief Returns the opacity of the whole window.
+		 *
+		 *  This function returns the opacity of the window, including any decorations.
+		 *
+		 *  The opacity (or alpha) value is a positive finite number between zero and
+		 *  one, where zero is fully transparent and one is fully opaque.  If the system
+		 *  does not support whole window transparency, this function always returns one.
+		 *
+		 *  The initial opacity value for newly created windows is one.
+		 *
+		 *  @return The opacity value of the specified window.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_transparency
+		 *  @sa @ref glfwSetWindowOpacity
+		 *
+		 *  @since Added in version 3.3.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE Opacity GetOpacity() const GLFW_HPP_NOEXCEPT
+		{
+			return glfwGetWindowOpacity(m_window);
+		}
+	
+		/*! @brief Sets the opacity of the whole window.
+		 *
+		 *  This function sets the opacity of the window, including any decorations.
+		 *
+		 *  The opacity (or alpha) value is a positive finite number between zero and
+		 *  one, where zero is fully transparent and one is fully opaque.
+		 *
+		 *  The initial opacity value for newly created windows is one.
+		 *
+		 *  A window created with framebuffer transparency may not use whole window
+		 *  transparency.  The results of doing this are undefined.
+		 *
+		 *  @param[in] opacity The desired opacity of the specified window.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_transparency
+		 *  @sa @ref glfwGetWindowOpacity
+		 *
+		 *  @since Added in version 3.3.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void SetOpacity(const Opacity opacity) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowOpacity(m_window, opacity);
+		}
+	
+		/*! @brief Iconifies the specified window.
+		 *
+		 *  This function iconifies (minimizes) the specified window if it was
+		 *  previously restored.  If the window is already iconified, this function does
+		 *  nothing.
+		 *
+		 *  If the specified window is a full screen window, the original monitor
+		 *  resolution is restored until the window is restored.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark @wayland There is no concept of iconification in wl_shell, this
+		 *  function will emit @ref GLFW_HPP_NAMESPACE::Error::ePlatform when using this deprecated
+		 *  protocol.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_iconify
+		 *  @sa @ref glfwRestoreWindow
+		 *  @sa @ref glfwMaximizeWindow
+		 *
+		 *  @since Added in version 2.1.
+		 *  @glfw3 Added window handle parameter.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void Iconify() const GLFW_HPP_NOEXCEPT
+		{
+			glfwIconifyWindow(m_window);
+		}
+
+		/*! @brief Restores the specified window.
+		 *
+		 *  This function restores the specified window if it was previously iconified
+		 *  (minimized) or maximized.  If the window is already restored, this function
+		 *  does nothing.
+		 *
+		 *  If the specified window is a full screen window, the resolution chosen for
+		 *  the window is restored on the selected monitor.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_iconify
+		 *  @sa @ref glfwIconifyWindow
+		 *  @sa @ref glfwMaximizeWindow
+		 *
+		 *  @since Added in version 2.1.
+		 *  @glfw3 Added window handle parameter.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void Restore() const GLFW_HPP_NOEXCEPT
+		{
+			glfwRestoreWindow(m_window);
+		}
+
+		/*! @brief Maximizes the specified window.
+		 *
+		 *  This function maximizes the specified window if it was previously not
+		 *  maximized.  If the window is already maximized, this function does nothing.
+		 *
+		 *  If the specified window is a full screen window, this function does nothing.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @par Thread Safety
+		 *  This function may only be called from the main thread.
+		 *
+		 *  @sa @ref window_iconify
+		 *  @sa @ref glfwIconifyWindow
+		 *  @sa @ref glfwRestoreWindow
+		 *
+		 *  @since Added in GLFW 3.2.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void Maximize() const GLFW_HPP_NOEXCEPT
+		{
+			glfwMaximizeWindow(m_window);
+		}
+
+		/*! @brief Makes the specified window visible.
+		 *
+		 *  This function makes the specified window visible if it was previously
+		 *  hidden.  If the window is already visible or is in full screen mode, this
+		 *  function does nothing.
+		 *
+		 *  By default, windowed mode windows are focused when shown
+		 *  Set the [GLFW_FOCUS_ON_SHOW](@ref GLFW_HPP_NAMESPACE::WindowHint::eFocusOnShow) window hint
+		 *  to change this behavior for all newly created windows, or change the
+		 *  behavior for an existing window with @ref glfwSetWindowAttrib.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_hide
+		 *  @sa @ref glfwHideWindow
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void Show() const GLFW_HPP_NOEXCEPT
+		{
+			glfwShowWindow(m_window);
+		}
+
+		/*! @brief Hides the specified window.
+		 *
+		 *  This function hides the specified window if it was previously visible.  If
+		 *  the window is already hidden or is in full screen mode, this function does
+		 *  nothing.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_hide
+		 *  @sa @ref glfwShowWindow
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void Hide() const GLFW_HPP_NOEXCEPT
+		{
+			glfwHideWindow(m_window);
+		}
+
+		/*! @brief Brings the specified window to front and sets input focus.
+		 *
+		 *  This function brings the specified window to front and sets input focus.
+		 *  The window should already be visible and not iconified.
+		 *
+		 *  By default, both windowed and full screen mode windows are focused when
+		 *  initially created.  Set the [GLFW_FOCUSED](@ref GLFW_HPP_NAMESPACE::WindowHint::eFocused) to
+		 *  disable this behavior.
+		 *
+		 *  Also by default, windowed mode windows are focused when shown
+		 *  with @ref glfwShowWindow. Set the
+		 *  [GLFW_FOCUS_ON_SHOW](@ref GLFW_HPP_NAMESPACE::WindowHint::eFocusOnShow) to disable this behavior.
+		 *
+		 *  __Do not use this function__ to steal focus from other applications unless
+		 *  you are certain that is what the user wants.  Focus stealing can be
+		 *  extremely disruptive.
+		 *
+		 *  For a less disruptive way of getting the user's attention, see
+		 *  [attention requests](@ref window_attention).
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark @wayland It is not possible for an application to bring its windows
+		 *  to front, this function will always emit @ref GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_focus
+		 *  @sa @ref window_attention
+		 *
+		 *  @since Added in version 3.2.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void Focus() const GLFW_HPP_NOEXCEPT
+		{
+			glfwFocusWindow(m_window);
+		}
+
+		/*! @brief Requests user attention to the specified window.
+		 *
+		 *  This function requests user attention to the specified window.  On
+		 *  platforms where this is not supported, attention is requested to the
+		 *  application as a whole.
+		 *
+		 *  Once the user has given attention, usually by focusing the window or
+		 *  application, the system will end the request automatically.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark @macos Attention is requested to the application as a whole, not the
+		 *  specific window.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_attention
+		 *
+		 *  @since Added in version 3.3.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void RequestAttention() const GLFW_HPP_NOEXCEPT
+		{
+			glfwRequestWindowAttention(m_window);
+		}
+
+		/*! @brief Returns the monitor that the window uses for full screen mode.
+		 *
+		 *  This function returns the handle of the monitor that the specified window is
+		 *  in full screen on.
+		 *
+		 *  @return The monitor, or `nullptr` if the window is in windowed mode or an
+		 *  [error](@ref error_handling) occurred.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_monitor
+		 *  @sa @ref glfwSetWindowMonitor
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE Monitor GetMonitor() const GLFW_HPP_NOEXCEPT
+		{
+			return Monitor{glfwGetWindowMonitor(m_window)};
+		}
+
+		/*! @brief Sets the mode, monitor, video mode and placement of a window.
+		 *
+		 *  This function sets the monitor that the window uses for full screen mode or,
+		 *  if the monitor is `nullptr`, makes it windowed mode.
+		 *
+		 *  When setting a monitor, this function updates the width, height and refresh
+		 *  rate of the desired video mode and switches to the video mode closest to it.
+		 *  The window position is ignored when setting a monitor.
+		 *
+		 *  When the monitor is `nullptr`, the position, width and height are used to
+		 *  place the window content area.  The refresh rate is ignored when no monitor
+		 *  is specified.
+		 *
+		 *  If you only wish to update the resolution of a full screen window or the
+		 *  size of a windowed mode window, see @ref glfwSetWindowSize.
+		 *
+		 *  When a window transitions from full screen to windowed mode, this function
+		 *  restores any previous window settings such as whether it is decorated,
+		 *  floating, resizable, has size or aspect ratio limits, etc.
+		 *
+		 *  @param[in] monitor The desired monitor, or `nullptr` to set windowed mode.
+		 *  @param[in] xpos The desired x-coordinate of the upper-left corner of the
+		 *  content area.
+		 *  @param[in] ypos The desired y-coordinate of the upper-left corner of the
+		 *  content area.
+		 *  @param[in] width The desired with, in screen coordinates, of the content
+		 *  area or video mode.
+		 *  @param[in] height The desired height, in screen coordinates, of the content
+		 *  area or video mode.
+		 *  @param[in] refreshRate The desired refresh rate, in Hz, of the video mode,
+		 *  or `GLFW_DONT_CARE`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized and @ref
+		 *  GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark The OpenGL or OpenGL ES context will not be destroyed or otherwise
+		 *  affected by any resizing or mode switching, although you may need to update
+		 *  your viewport if the framebuffer size has changed.
+		 *
+		 *  @remark @wayland The desired window position is ignored, as there is no way
+		 *  for an application to set this property.
+		 *
+		 *  @remark @wayland Setting the window to full screen will not attempt to
+		 *  change the mode, no matter what the requested size or refresh rate.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_monitor
+		 *  @sa @ref window_full_screen
+		 *  @sa @ref glfwGetWindowMonitor
+		 *  @sa @ref glfwSetWindowSize
+		 *
+		 *  @since Added in version 3.2.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void SetMonitor(Monitor monitor, const ScreenCoordinate xpos, const ScreenCoordinate ypos, const ScreenCoordinate width, const ScreenCoordinate height, const Hz refreshRate = GLFW_DONT_CARE) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowMonitor(m_window, static_cast<GLFWmonitor *>(monitor), xpos, ypos, width, height, refreshRate);
+		}
+
+		template <ScreenCoordinate xpos, ScreenCoordinate ypos, ScreenCoordinate width, ScreenCoordinate height, Hz refreshRate = GLFW_DONT_CARE>
+		GLFW_HPP_INLINE void SetMonitor(Monitor monitor) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowMonitor(m_window, static_cast<GLFWmonitor *>(monitor), xpos, ypos, width, height, refreshRate);
+		}
+
+		/*! @brief Returns an attribute of the specified window.
+		 *
+		 *  This function returns the value of an attribute of the specified window or
+		 *  its OpenGL or OpenGL ES context.
+		 *
+		 *  @param[in] attrib The [window attribute](@ref window_attribs) whose value to
+		 *  return.
+		 *  @return The value of the attribute, or zero if an
+		 *  [error](@ref error_handling) occurred.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized, @ref
+		 *  GLFW_HPP_NAMESPACE::Error::eInvalidEnum and @ref GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark Framebuffer related hints are not window attributes.  See @ref
+		 *  window_attribs_fb for more information.
+		 *
+		 *  @remark Zero is a valid value for many window and context related
+		 *  attributes so you cannot use a return value of zero as an indication of
+		 *  errors.  However, this function should not fail as long as it is passed
+		 *  valid arguments and the library has been [initialized](@ref intro_init).
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_attribs
+		 *  @sa @ref glfwSetWindowAttrib
+		 *
+		 *  @since Added in version 3.0.  Replaces `glfwGetWindowParam` and
+		 *  `glfwGetGLVersion`.
+		 *
+		 *  @ingroup window
+		 */
+		template <class T>
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE T GetAttrib(const WindowAttribute attrib) const GLFW_HPP_NOEXCEPT
+		{
+			return static_cast<T>(glfwGetWindowAttrib(m_window, static_cast<int>(attrib)));
+		}
+
+		template <class T, WindowAttribute attrib>
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE T GetAttrib() const GLFW_HPP_NOEXCEPT
+		{
+			return static_cast<T>(glfwGetWindowAttrib(m_window, static_cast<int>(attrib)));
+		}
+
+		/*! @brief Sets an attribute of the specified window.
+		 *
+		 *  This function sets the value of an attribute of the specified window.
+		 *
+		 *  The supported attributes are [GLFW_DECORATED](@ref GLFW_HPP_NAMESPACE::WindowAttribute::eDecorated),
+		 *  [GLFW_RESIZABLE](@ref GLFW_HPP_NAMESPACE::WindowAttribute::eResizable),
+		 *  [GLFW_FLOATING](@ref GLFW_HPP_NAMESPACE::WindowAttribute::eFloating),
+		 *  [GLFW_AUTO_ICONIFY](@ref GLFW_HPP_NAMESPACE::WindowAttribute::eAutoIconify) and
+		 *  [GLFW_FOCUS_ON_SHOW](@ref GLFW_HPP_NAMESPACE::WindowAttribute::eFocusOnShow).
+		 *
+		 *  Some of these attributes are ignored for full screen windows.  The new
+		 *  value will take effect if the window is later made windowed.
+		 *
+		 *  Some of these attributes are ignored for windowed mode windows.  The new
+		 *  value will take effect if the window is later made full screen.
+		 *
+		 *  @param[in] attrib A supported window attribute.
+		 *  @param[in] value `true` or `false`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized, @ref
+		 *  GLFW_HPP_NAMESPACE::Error::eInvalidEnum, @ref GLFW_HPP_NAMESPACE::Error::eInvalidValue and @ref GLFW_HPP_NAMESPACE::Error::ePlatform.
+		 *
+		 *  @remark Calling @ref glfwGetWindowAttrib will always return the latest
+		 *  value, even if that value is ignored by the current mode of the window.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_attribs
+		 *  @sa @ref glfwGetWindowAttrib
+		 *
+		 *  @since Added in version 3.3.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE void SetAttrib(const WindowAttribute attrib, const bool value) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowAttrib(m_window, static_cast<int>(attrib), value);
+		}
+
+		template <WindowAttribute attrib, bool value>
+		GLFW_HPP_INLINE void SetAttrib() const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowAttrib(m_window, static_cast<int>(attrib), value);
+		}
+
+		/*! @brief Sets the user pointer of the specified window.
+		 *
+		 *  This function sets the user-defined pointer of the specified window.  The
+		 *  current value is retained until the window is destroyed.  The initial value
+		 *  is `nullptr`.
+		 *
+		 *  @param[in] pointer The new value.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function may be called from any thread.  Access is not
+		 *  synchronized.
+		 *
+		 *  @sa @ref window_userptr
+		 *  @sa @ref glfwGetWindowUserPointer
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		template <class T>
+		GLFW_HPP_INLINE void SetUserPointer(T * const pointer = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowUserPointer(m_window, static_cast<void *>(pointer));
+		}
+
+		template <class T>
+		GLFW_HPP_INLINE void SetUserPointer(T &pointer) const GLFW_HPP_NOEXCEPT
+		{
+			glfwSetWindowUserPointer(m_window, static_cast<void *>(&pointer));
+		}
+
+		/*! @brief Returns the user pointer of the specified window.
+		 *
+		 *  This function returns the current value of the user-defined pointer of the
+		 *  specified window.  The initial value is `nullptr`.
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function may be called from any thread.  Access is not
+		 *  synchronized.
+		 *
+		 *  @sa @ref window_userptr
+		 *  @sa @ref glfwSetWindowUserPointer
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		template <class T>
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE T *GetUserPointer() const GLFW_HPP_NOEXCEPT
+		{
+			return static_cast<T *>(glfwGetWindowUserPointer(m_window));
+		}
+
+		template <class T>
+		GLFW_HPP_NODISCARD("") GLFW_HPP_INLINE T &GetUserPointerRef() const GLFW_HPP_NOEXCEPT
+		{
+			T * const pointer = static_cast<T *>(glfwGetWindowUserPointer(m_window));
+			GLFW_HPP_ASSERT(pointer && "Returning null reference!");
+			return *pointer;
+		}
+
+		/*! @brief Sets the position callback for the specified window.
+		 *
+		 *  This function sets the position callback of the specified window, which is
+		 *  called when the window is moved.  The callback is provided with the
+		 *  position, in screen coordinates, of the upper-left corner of the content
+		 *  area of the window.
+		 *
+		 *  @param[in] callback The new callback, or `nullptr` to remove the currently set
+		 *  callback.
+		 *  @return The previously set callback, or `nullptr` if no callback was set or the
+		 *  library had not been [initialized](@ref intro_init).
+		 *
+		 *  @callback_signature
+		 *  @code
+		 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::ScreenCoordinate xpos, GLFW_HPP_NAMESPACE::ScreenCoordinate ypos)
+		 *  @endcode
+		 *  For more information about the callback parameters, see the
+		 *  [function pointer type](@ref GLFW_HPP_NAMESPACE::Windowposfun).
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @remark @wayland This callback will never be called, as there is no way for
+		 *  an application to know its global position.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_pos
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE Windowposfun SetPosCallback(Windowposfun callback = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowposfun>(glfwSetWindowPosCallback(m_window, reinterpret_cast<GLFWwindowposfun>(callback)));
+		}
+
+		template <Windowposfun callback = nullptr>
+		GLFW_HPP_INLINE Windowposfun SetPosCallback() const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowposfun>(glfwSetWindowPosCallback(m_window, reinterpret_cast<GLFWwindowposfun>(callback)));
+		}
+
+		/*! @brief Sets the size callback for the specified window.
+		 *
+		 *  This function sets the size callback of the specified window, which is
+		 *  called when the window is resized.  The callback is provided with the size,
+		 *  in screen coordinates, of the content area of the window.
+		 *
+		 *  @param[in] callback The new callback, or `nullptr` to remove the currently set
+		 *  callback.
+		 *  @return The previously set callback, or `nullptr` if no callback was set or the
+		 *  library had not been [initialized](@ref intro_init).
+		 *
+		 *  @callback_signature
+		 *  @code
+		 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::ScreenCoordinate width, GLFW_HPP_NAMESPACE::ScreenCoordinate height)
+		 *  @endcode
+		 *  For more information about the callback parameters, see the
+		 *  [function pointer type](@ref GLFWwindowsizefun).
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_size
+		 *
+		 *  @since Added in version 1.0.
+		 *  @glfw3 Added window handle parameter and return value.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE Windowsizefun SetSizeCallback(Windowsizefun callback = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowsizefun>(glfwSetWindowSizeCallback(m_window, reinterpret_cast<GLFWwindowsizefun>(callback)));
+		}
+
+		template <Windowsizefun callback = nullptr>
+		GLFW_HPP_INLINE Windowsizefun SetSizeCallback() const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowsizefun>(glfwSetWindowSizeCallback(m_window, reinterpret_cast<GLFWwindowsizefun>(callback)));
+		}
+
+		/*! @brief Sets the close callback for the specified window.
+		 *
+		 *  This function sets the close callback of the specified window, which is
+		 *  called when the user attempts to close the window, for example by clicking
+		 *  the close widget in the title bar.
+		 *
+		 *  The close flag is set before this callback is called, but you can modify it
+		 *  at any time with @ref glfwSetWindowShouldClose.
+		 *
+		 *  The close callback is not triggered by @ref glfwDestroyWindow.
+		 *
+		 *  @param[in] callback The new callback, or `nullptr` to remove the currently set
+		 *  callback.
+		 *  @return The previously set callback, or `nullptr` if no callback was set or the
+		 *  library had not been [initialized](@ref intro_init).
+		 *
+		 *  @callback_signature
+		 *  @code
+		 *  void function_name(GLFW_HPP_NAMESPACE::Window window)
+		 *  @endcode
+		 *  For more information about the callback parameters, see the
+		 *  [function pointer type](@ref GLFWwindowclosefun).
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @remark @macos Selecting Quit from the application menu will trigger the
+		 *  close callback for all windows.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_close
+		 *
+		 *  @since Added in version 2.5.
+		 *  @glfw3 Added window handle parameter and return value.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE Windowclosefun SetCloseCallback(Windowclosefun callback = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowclosefun>(glfwSetWindowCloseCallback(m_window, reinterpret_cast<GLFWwindowclosefun>(callback)));
+		}
+
+		template <Windowclosefun callback = nullptr>
+		GLFW_HPP_INLINE Windowclosefun SetCloseCallback() const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowclosefun>(glfwSetWindowCloseCallback(m_window, reinterpret_cast<GLFWwindowclosefun>(callback)));
+		}
+
+		/*! @brief Sets the refresh callback for the specified window.
+		 *
+		 *  This function sets the refresh callback of the specified window, which is
+		 *  called when the content area of the window needs to be redrawn, for example
+		 *  if the window has been exposed after having been covered by another window.
+		 *
+		 *  On compositing window systems such as Aero, Compiz, Aqua or Wayland, where
+		 *  the window contents are saved off-screen, this callback may be called only
+		 *  very infrequently or never at all.
+		 *
+		 *  @param[in] callback The new callback, or `nullptr` to remove the currently set
+		 *  callback.
+		 *  @return The previously set callback, or `nullptr` if no callback was set or the
+		 *  library had not been [initialized](@ref intro_init).
+		 *
+		 *  @callback_signature
+		 *  @code
+		 *  void function_name(GLFW_HPP_NAMESPACE::Window window);
+		 *  @endcode
+		 *  For more information about the callback parameters, see the
+		 *  [function pointer type](@ref GLFWwindowrefreshfun).
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_refresh
+		 *
+		 *  @since Added in version 2.5.
+		 *  @glfw3 Added window handle parameter and return value.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE Windowrefreshfun SetRefreshCallback(Windowrefreshfun callback = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowrefreshfun>(glfwSetWindowRefreshCallback(m_window, reinterpret_cast<GLFWwindowrefreshfun>(callback)));
+		}
+
+		template <Windowrefreshfun callback = nullptr>
+		GLFW_HPP_INLINE Windowrefreshfun SetRefreshCallback() const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowrefreshfun>(glfwSetWindowRefreshCallback(m_window, reinterpret_cast<GLFWwindowrefreshfun>(callback)));
+		}
+
+		/*! @brief Sets the focus callback for the specified window.
+		 *
+		 *  This function sets the focus callback of the specified window, which is
+		 *  called when the window gains or loses input focus.
+		 *
+		 *  After the focus callback is called for a window that lost input focus,
+		 *  synthetic key and mouse button release events will be generated for all such
+		 *  that had been pressed.  For more information, see @ref glfwSetKeyCallback
+		 *  and @ref glfwSetMouseButtonCallback.
+		 *
+		 *  @param[in] callback The new callback, or `nullptr` to remove the currently set
+		 *  callback.
+		 *  @return The previously set callback, or `nullptr` if no callback was set or the
+		 *  library had not been [initialized](@ref intro_init).
+		 *
+		 *  @callback_signature
+		 *  @code
+		 *  void function_name(GLFW_HPP_NAMESPACE::Window window, bool focused)
+		 *  @endcode
+		 *  For more information about the callback parameters, see the
+		 *  [function pointer type](@ref GLFWwindowfocusfun).
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_focus
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE Windowfocusfun SetFocusCallback(Windowfocusfun callback = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowfocusfun>(glfwSetWindowFocusCallback(m_window, reinterpret_cast<GLFWwindowfocusfun>(callback)));
+		}
+
+		template <Windowfocusfun callback = nullptr>
+		GLFW_HPP_INLINE Windowfocusfun SetFocusCallback() const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowfocusfun>(glfwSetWindowFocusCallback(m_window, reinterpret_cast<GLFWwindowfocusfun>(callback)));
+		}
+
+		/*! @brief Sets the iconify callback for the specified window.
+		 *
+		 *  This function sets the iconification callback of the specified window, which
+		 *  is called when the window is iconified or restored.
+		 *
+		 *  @param[in] callback The new callback, or `nullptr` to remove the currently set
+		 *  callback.
+		 *  @return The previously set callback, or `nullptr` if no callback was set or the
+		 *  library had not been [initialized](@ref intro_init).
+		 *
+		 *  @callback_signature
+		 *  @code
+		 *  void function_name(GLFW_HPP_NAMESPACE::Window window, bool iconified)
+		 *  @endcode
+		 *  For more information about the callback parameters, see the
+		 *  [function pointer type](@ref GLFWwindowiconifyfun).
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @remark @wayland The wl_shell protocol has no concept of iconification,
+		 *  this callback will never be called when using this deprecated protocol.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_iconify
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE Windowiconifyfun SetIconifyCallback(Windowiconifyfun callback = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowiconifyfun>(glfwSetWindowIconifyCallback(m_window, reinterpret_cast<GLFWwindowiconifyfun>(callback)));
+		}
+
+		template <Windowiconifyfun callback = nullptr>
+		GLFW_HPP_INLINE Windowiconifyfun SetIconifyCallback() const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowiconifyfun>(glfwSetWindowIconifyCallback(m_window, reinterpret_cast<GLFWwindowiconifyfun>(callback)));
+		}
+
+		/*! @brief Sets the maximize callback for the specified window.
+		 *
+		 *  This function sets the maximization callback of the specified window, which
+		 *  is called when the window is maximized or restored.
+		 *
+		 *  @param[in] callback The new callback, or `nullptr` to remove the currently set
+		 *  callback.
+		 *  @return The previously set callback, or `nullptr` if no callback was set or the
+		 *  library had not been [initialized](@ref intro_init).
+		 *
+		 *  @callback_signature
+		 *  @code
+		 *  void function_name(GLFW_HPP_NAMESPACE::Window window, bool maximized)
+		 *  @endcode
+		 *  For more information about the callback parameters, see the
+		 *  [function pointer type](@ref GLFWwindowmaximizefun).
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_maximize
+		 *
+		 *  @since Added in version 3.3.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE Windowmaximizefun SetMaximizeCallback(Windowmaximizefun callback = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowmaximizefun>(glfwSetWindowMaximizeCallback(m_window, reinterpret_cast<GLFWwindowmaximizefun>(callback)));
+		}
+
+		template <Windowmaximizefun callback = nullptr>
+		GLFW_HPP_INLINE Windowmaximizefun SetMaximizeCallback() const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowmaximizefun>(glfwSetWindowMaximizeCallback(m_window, reinterpret_cast<GLFWwindowmaximizefun>(callback)));
+		}
+
+		/*! @brief Sets the framebuffer resize callback for the specified window.
+		 *
+		 *  This function sets the framebuffer resize callback of the specified window,
+		 *  which is called when the framebuffer of the specified window is resized.
+		 *
+		 *  @param[in] callback The new callback, or `nullptr` to remove the currently set
+		 *  callback.
+		 *  @return The previously set callback, or `nullptr` if no callback was set or the
+		 *  library had not been [initialized](@ref intro_init).
+		 *
+		 *  @callback_signature
+		 *  @code
+		 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::Pixel width, GLFW_HPP_NAMESPACE::Pixel height)
+		 *  @endcode
+		 *  For more information about the callback parameters, see the
+		 *  [function pointer type](@ref GLFWframebuffersizefun).
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_fbsize
+		 *
+		 *  @since Added in version 3.0.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE Framebuffersizefun SetFramebufferSizeCallback(Framebuffersizefun callback = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Framebuffersizefun>(glfwSetFramebufferSizeCallback(m_window, reinterpret_cast<GLFWframebuffersizefun>(callback)));
+		}
+
+		template <Framebuffersizefun callback = nullptr>
+		GLFW_HPP_INLINE Framebuffersizefun SetFramebufferSizeCallback() const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Framebuffersizefun>(glfwSetFramebufferSizeCallback(m_window, reinterpret_cast<GLFWframebuffersizefun>(callback)));
+		}
+
+		/*! @brief Sets the window content scale callback for the specified window.
+		 *
+		 *  This function sets the window content scale callback of the specified window,
+		 *  which is called when the content scale of the specified window changes.
+		 *
+		 *  @param[in] callback The new callback, or `nullptr` to remove the currently set
+		 *  callback.
+		 *  @return The previously set callback, or `nullptr` if no callback was set or the
+		 *  library had not been [initialized](@ref intro_init).
+		 *
+		 *  @callback_signature
+		 *  @code
+		 *  void function_name(GLFW_HPP_NAMESPACE::Window window, GLFW_HPP_NAMESPACE::ContentScale xscale, GLFW_HPP_NAMESPACE::ContentScale yscale)
+		 *  @endcode
+		 *  For more information about the callback parameters, see the
+		 *  [function pointer type](@ref GLFWwindowcontentscalefun).
+		 *
+		 *  @errors Possible errors include @ref GLFW_HPP_NAMESPACE::Error::eNotInitalized.
+		 *
+		 *  @thread_safety This function must only be called from the main thread.
+		 *
+		 *  @sa @ref window_scale
+		 *  @sa @ref glfwGetWindowContentScale
+		 *
+		 *  @since Added in version 3.3.
+		 *
+		 *  @ingroup window
+		 */
+		GLFW_HPP_INLINE Windowcontentscalefun SetContentScaleCallback(Windowcontentscalefun callback = nullptr) const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowcontentscalefun>(glfwSetWindowContentScaleCallback(m_window, reinterpret_cast<GLFWwindowcontentscalefun>(callback)));
+		}
+
+		template <Windowcontentscalefun callback = nullptr>
+		GLFW_HPP_INLINE Windowcontentscalefun SetContentScaleCallback() const GLFW_HPP_NOEXCEPT
+		{
+			return reinterpret_cast<Windowcontentscalefun>(glfwSetWindowContentScaleCallback(m_window, reinterpret_cast<GLFWwindowcontentscalefun>(callback)));
+		}
+
+	private:
+		GLFWwindow *m_window = nullptr;
+
+#ifdef GLFW_HPP_ENABLE_HASHING
+		friend struct std::hash<Window>;
+#endif
+	};
+
+	static_assert(sizeof(Window) == sizeof(GLFWwindow *), "Window class and original pointer are different sizes!");
+
+
+	/*! @brief Opaque cursor object.
+ 	*
+ 	*  Opaque cursor object.
+ 	*
+ 	*  @see @ref cursor_object
+ 	*
+ 	*  @since Added in version 3.1.
+ 	*
+ 	*  @ingroup input
+ 	*/
+	class Cursor
+	{
+	private:
+		GLFWcursor *m_cursor = nullptr;
+
+#ifdef GLFW_HPP_ENABLE_HASHING
+		friend struct std::hash<Cursor>;
+#endif
+	};
+
+	static_assert(sizeof(Cursor) == sizeof(GLFWcursor *), "Cursor class and original pointer are different sizes!");
 }
 
 // TODO: Implement hashing functions
