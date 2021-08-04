@@ -523,6 +523,19 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
+	template <Action value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case Action::eRelease: return "Release";
+		case Action::ePress:   return "Press";
+		case Action::eRepeat:  return "Repeat";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
 	/*! @name Key and button actions 
 	 */
 	enum class SmallAction : SmallEnumSize
@@ -564,6 +577,19 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
+	template <SmallAction value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case SmallAction::eRelease: return "Release";
+		case SmallAction::ePress:   return "Press";
+		case SmallAction::eRepeat:  return "Repeat";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
 	/*! @defgroup hat_state Joystick hat states
 	 *  @brief Joystick hat states.
 	 *
@@ -585,6 +611,25 @@ namespace GLFW_HPP_NAMESPACE
 	};
 
 	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Hat value) GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case Hat::eCentered:  return "Centered";
+		case Hat::eUp: 	   	  return "Up";
+		case Hat::eRight: 	  return "Right";
+		case Hat::eDown: 	  return "Down";
+		case Hat::eLeft: 	  return "Left";
+		case Hat::eRightUp:   return "RightUp";
+		case Hat::eRightDown: return "RightDown";
+		case Hat::eLeftUp:	  return "LeftUp";
+		case Hat::eLeftDown:  return "LeftDown";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	template <Hat value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -885,6 +930,137 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
+	template <Key value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case Key::eUnknown: 	 return "Unknown";
+		case Key::eSpace: 		 return "Space";
+		case Key::eApostrophe: 	 return "Apostrophe";
+		case Key::eComma: 		 return "Comma";
+		case Key::eMinus: 		 return "Minus";
+		case Key::ePeriod: 		 return "Period";
+		case Key::eSlash: 		 return "Slash";
+		case Key::e0: 			 return "0";
+		case Key::e1: 			 return "1";
+		case Key::e2: 			 return "2";
+		case Key::e3: 			 return "3";
+		case Key::e4: 			 return "4";
+		case Key::e5: 			 return "5";
+		case Key::e6: 			 return "6";
+		case Key::e7: 			 return "7";
+		case Key::e8: 			 return "8";
+		case Key::e9: 			 return "9";
+		case Key::eSemicolon: 	 return "Semicolon";
+		case Key::eEqual: 		 return "Equal";
+		case Key::eA: 			 return "A";
+		case Key::eB: 			 return "B";
+		case Key::eC: 			 return "C";
+		case Key::eD: 			 return "D";
+		case Key::eE: 			 return "E";
+		case Key::eF: 			 return "F";
+		case Key::eG: 			 return "G";
+		case Key::eH: 			 return "H";
+		case Key::eI: 			 return "I";
+		case Key::eJ: 			 return "J";
+		case Key::eK: 			 return "K";
+		case Key::eL: 			 return "L";
+		case Key::eM: 			 return "M";
+		case Key::eN: 			 return "N";
+		case Key::eO: 			 return "O";
+		case Key::eP: 			 return "P";
+		case Key::eQ: 			 return "Q";
+		case Key::eR: 			 return "R";
+		case Key::eS: 			 return "S";
+		case Key::eT: 			 return "T";
+		case Key::eU: 			 return "U";
+		case Key::eV: 			 return "V";
+		case Key::eW: 			 return "W";
+		case Key::eX: 			 return "X";
+		case Key::eY: 			 return "Y";
+		case Key::eZ: 			 return "Z";
+		case Key::eLeftBracket:  return "LeftBracket";
+		case Key::eBackslash: 	 return "Backslash";
+		case Key::eRightBracket: return "RightBracket";
+		case Key::eGraveAccent:  return "GraveAccent";
+		case Key::eWorld1: 		 return "World1";
+		case Key::eWorld2: 		 return "World2";
+		case Key::eEscape: 		 return "Escape";
+		case Key::eEnter: 		 return "Enter";
+		case Key::eTab: 		 return "Tab";
+		case Key::eBackspace: 	 return "Backspace";
+		case Key::eInsert: 		 return "Insert";
+		case Key::eDelete: 		 return "Delete";
+		case Key::eRight: 		 return "Right";
+		case Key::eLeft: 		 return "Left";
+		case Key::eDown: 		 return "Down";
+		case Key::eUp: 			 return "Up";
+		case Key::ePageUp: 		 return "PageUp";
+		case Key::ePageDown: 	 return "PageDown";
+		case Key::eHome: 		 return "Home";
+		case Key::eEnd: 		 return "End";
+		case Key::eCapsLock: 	 return "CapsLock";
+		case Key::eScrollLock: 	 return "ScrollLock";
+		case Key::eNumLock: 	 return "NumLock";
+		case Key::ePrintScreen:  return "PrintScreen";
+		case Key::ePause: 		 return "Pause";
+		case Key::eF1: 			 return "F1";
+		case Key::eF2: 			 return "F2";
+		case Key::eF3: 			 return "F3";
+		case Key::eF4: 			 return "F4";
+		case Key::eF5: 			 return "F5";
+		case Key::eF6: 			 return "F6";
+		case Key::eF7: 			 return "F7";
+		case Key::eF8: 			 return "F8";
+		case Key::eF9: 			 return "F9";
+		case Key::eF10: 		 return "F10";
+		case Key::eF11: 		 return "F11";
+		case Key::eF12: 		 return "F12";
+		case Key::eF13: 		 return "F13";
+		case Key::eF14: 		 return "F14";
+		case Key::eF15: 		 return "F15";
+		case Key::eF16: 		 return "F16";
+		case Key::eF17: 		 return "F17";
+		case Key::eF18: 		 return "F18";
+		case Key::eF19: 		 return "F19";
+		case Key::eF20: 		 return "F20";
+		case Key::eF21: 		 return "F21";
+		case Key::eF22: 		 return "F22";
+		case Key::eF23: 		 return "F23";
+		case Key::eF24: 		 return "F24";
+		case Key::eF25: 		 return "F25";
+		case Key::eKp0: 		 return "Kp0";
+		case Key::eKp1: 		 return "Kp1";
+		case Key::eKp2: 		 return "Kp2";
+		case Key::eKp3: 		 return "Kp3";
+		case Key::eKp4: 		 return "Kp4";
+		case Key::eKp5: 		 return "Kp5";
+		case Key::eKp6: 		 return "Kp6";
+		case Key::eKp7: 		 return "Kp7";
+		case Key::eKp8: 		 return "Kp8";
+		case Key::eKp9: 		 return "Kp9";
+		case Key::eKpDecimal: 	 return "KpDecimal";
+		case Key::eKpDivide: 	 return "KpDivide";
+		case Key::eKpMultiply: 	 return "KpMultiply";
+		case Key::eKpSubtract: 	 return "KpSubtract";
+		case Key::eKpAdd: 		 return "KpAdd";
+		case Key::eKpEnter: 	 return "KpEnter";
+		case Key::eKpEqual: 	 return "KpEqual";
+		case Key::eLeftShift: 	 return "LeftShift";
+		case Key::eLeftControl:  return "LeftControl";
+		case Key::eLeftAlt: 	 return "LeftAlt";
+		case Key::eLeftSuper: 	 return "LeftSuper";
+		case Key::eRightShift: 	 return "RightShift";
+		case Key::eRightControl: return "RightControl";
+		case Key::eRightAlt: 	 return "RightAlt";
+		case Key::eRightSuper: 	 return "RightSuper";
+		case Key::eMenu: 		 return "Menu/Last";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
 	/*! @defgroup mods Modifier key flags
  	 *  @brief Modifier key flags.
  	 *
@@ -950,6 +1126,22 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
+	template <Mod value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case Mod::eShift: 	 return "Shift";
+		case Mod::eControl:  return "Control";
+		case Mod::eAlt: 	 return "Alt";
+		case Mod::eSuper: 	 return "Super";
+		case Mod::eCapsLock: return "CapsLock";
+		case Mod::eNumLock:  return "NumLock";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
 	/*! @defgroup buttons Mouse buttons
  	 *  @brief Mouse button IDs.
  	 *
@@ -974,6 +1166,24 @@ namespace GLFW_HPP_NAMESPACE
 	};
 
 	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const MouseButton value) GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case MouseButton::e1: return "1/Left";
+		case MouseButton::e2: return "2/Right";
+		case MouseButton::e3: return "3/Middle";
+		case MouseButton::e4: return "4";
+		case MouseButton::e5: return "5";
+		case MouseButton::e6: return "6";
+		case MouseButton::e7: return "7";
+		case MouseButton::e8: return "8/Last";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	template <MouseButton value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1019,6 +1229,32 @@ namespace GLFW_HPP_NAMESPACE
 	};
 
 	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Joystick value) GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case Joystick::e1: 	return "1";
+		case Joystick::e2: 	return "2";
+		case Joystick::e3: 	return "3";
+		case Joystick::e4: 	return "4";
+		case Joystick::e5: 	return "5";
+		case Joystick::e6: 	return "6";
+		case Joystick::e7: 	return "7";
+		case Joystick::e8: 	return "8";
+		case Joystick::e9: 	return "9";
+		case Joystick::e10: return "10";
+		case Joystick::e11: return "11";
+		case Joystick::e12: return "12";
+		case Joystick::e13: return "13";
+		case Joystick::e14: return "14";
+		case Joystick::e15: return "15";
+		case Joystick::e16: return "16/Last";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	template <Joystick value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1098,6 +1334,31 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
+	template <GamepadButton value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case GamepadButton::eA: 		  return "A/Cross";
+		case GamepadButton::eB: 		  return "B/Circle";
+		case GamepadButton::eX: 		  return "X/Square";
+		case GamepadButton::eY: 		  return "Y/Triangle";
+		case GamepadButton::eLeftBumper:  return "LeftBumper";
+		case GamepadButton::eRightBumper: return "RightBumper";
+		case GamepadButton::eBack: 		  return "Back";
+		case GamepadButton::eStart: 	  return "Start";
+		case GamepadButton::eGuide: 	  return "Guide";
+		case GamepadButton::eLeftThumb:   return "LeftThumb";
+		case GamepadButton::eRightThumb:  return "RightThumb";
+		case GamepadButton::eDpadUp: 	  return "DpadUp";
+		case GamepadButton::eDpadRight:   return "DpadRight";
+		case GamepadButton::eDpadDown: 	  return "DpadDown";
+		case GamepadButton::eDpadLeft: 	  return "DpadLeft/Last";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
 	/*! @defgroup gamepad_axes Gamepad axes
  	 *  @brief Gamepad axes.
  	 *
@@ -1117,6 +1378,22 @@ namespace GLFW_HPP_NAMESPACE
 	};
 
 	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const GamepadAxis value) GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case GamepadAxis::eLeftX: 		 return "LeftX";
+		case GamepadAxis::eLeftY: 		 return "LeftY";
+		case GamepadAxis::eRightX: 		 return "RightX";
+		case GamepadAxis::eRightY: 		 return "RightY";
+		case GamepadAxis::eLeftTrigger:  return "LeftTrigger";
+		case GamepadAxis::eRightTrigger: return "RightTrigger/Last";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	template <GamepadAxis value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1277,6 +1554,27 @@ namespace GLFW_HPP_NAMESPACE
 	};
 
 	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Error value) GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case Error::eNone:	 			 return "None";
+		case Error::eNotInitalized: 	 return "NotInitalized";
+		case Error::eNoCurrentContext: 	 return "NoCurrentContext";
+		case Error::eInvalidEnum: 		 return "InvalidEnum";
+		case Error::eInvalidValue: 		 return "InvalidValue";
+		case Error::eOutOfMemory: 		 return "OutOfMemory";
+		case Error::eApiUnavailable: 	 return "ApiUnavailable";
+		case Error::eVersionUnavailable: return "VersionUnavailable";
+		case Error::ePlatform:		 	 return "Platform";
+		case Error::eFormatUnavailable:  return "FormatUnavailable";
+		case Error::eNoWindowContext: 	 return "NoWindowContext";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	template <Error value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1626,6 +1924,59 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
+	template <WindowHint value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case WindowHint::eFocused:   	  		  return "Focused";
+		case WindowHint::eResizable: 	  		  return "Resizable";
+		case WindowHint::eVisible:   	  		  return "Visible";
+		case WindowHint::eDecorated: 	  		  return "Decorated";
+		case WindowHint::eAutoIconify:  		  return "AutoIconify";
+		case WindowHint::eFloating: 	  		  return "Floating";
+		case WindowHint::eMaximized: 	  		  return "Maximized";
+		case WindowHint::eCenterCursor: 		  return "CenterCursor";
+		case WindowHint::eTransparentFramebuffer: return "TransparentFramebuffer";
+		case WindowHint::eFocusOnShow: 			  return "FocusOnShow";
+		case WindowHint::eRedBits: 				  return "RedBits";
+		case WindowHint::eGreenBits: 			  return "GreenBits";
+		case WindowHint::eBlueBits: 			  return "BlueBits";
+		case WindowHint::eAlphaBits: 			  return "AlphaBits";
+		case WindowHint::eDepthBits: 			  return "DepthBits";
+		case WindowHint::eStencilBits: 			  return "StencilBits";
+		case WindowHint::eAccumRedBits: 		  return "AccumRedBits";
+		case WindowHint::eAccumGreenBits: 		  return "AccumGreenBits";
+		case WindowHint::eAccumBlueBits: 		  return "AccumBlueBits";
+		case WindowHint::eAccumAlphaBits: 		  return "AccumAlphaBits";
+		case WindowHint::eAuxBuffers: 			  return "AuxBuffers";
+		case WindowHint::eStereo: 				  return "Stereo";
+		case WindowHint::eSamples: 				  return "Samples";
+		case WindowHint::eSrgbCapable: 			  return "SrgbCapable";
+		case WindowHint::eRefreshRate: 			  return "RefreshRate";
+		case WindowHint::eDoublebuffer: 		  return "Doublebuffer";
+		case WindowHint::eClientApi: 			  return "ClientApi";
+		case WindowHint::eContextVersionMajor: 	  return "ContextVersionMajor";
+		case WindowHint::eContextVersionMinor: 	  return "ContextVersionMinor";
+		case WindowHint::eContextRevision:	 	  return "ContextRevision";
+		case WindowHint::eContextRobustness:	  return "ContextRobustness";
+		case WindowHint::eOpenglForwardCompat: 	  return "OpenglForwardCompat";
+		case WindowHint::eOpenglDebugContext: 	  return "OpenglDebugContext";
+		case WindowHint::eOpenglProfile: 		  return "OpenglProfile";
+		case WindowHint::eContextReleaseBehavior: return "ContextReleaseBehavior";
+		case WindowHint::eContextNoError:		  return "ContextNoError";
+		case WindowHint::eContextCreationApi:	  return "ContexCreationApi";
+		case WindowHint::eScaleToMonitor:		  return "ScaleToMonitor";
+		case WindowHint::eCocoaRetinaFramebuffer: return "CocoaRetinaFramebuffer";
+		case WindowHint::eCocoaFrameName:		  return "CocoaFrameName";
+		case WindowHint::eCocoaGraphicsSwitching: return "CocoaGraphicsSwitching";
+		case WindowHint::eX11ClassName:			  return "X11ClassName";
+		case WindowHint::eX11InstanceName:		  return "X11InstanceName";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
 	/*! @addtogroup window
 	 */
 	enum class WindowAttribute : EnumSize
@@ -1815,6 +2166,38 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
+	template <WindowAttribute value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case WindowAttribute::eFocused:   	  		   return "Focused";
+		case WindowAttribute::eIconified:   	  	   return "Iconified";
+		case WindowAttribute::eResizable: 	  		   return "Resizable";
+		case WindowAttribute::eVisible:   	  		   return "Visible";
+		case WindowAttribute::eDecorated: 	  		   return "Decorated";
+		case WindowAttribute::eAutoIconify:  		   return "AutoIconify";
+		case WindowAttribute::eFloating: 	  		   return "Floating";
+		case WindowAttribute::eMaximized: 	  		   return "Maximized";
+		case WindowAttribute::eTransparentFramebuffer: return "TransparentFramebuffer";
+		case WindowAttribute::eHovered: 			   return "Hovered";
+		case WindowAttribute::eFocusOnShow: 		   return "FocusOnShow";
+		case WindowAttribute::eClientApi: 			   return "ClientApi";
+		case WindowAttribute::eContextVersionMajor:    return "ContextVersionMajor";
+		case WindowAttribute::eContextVersionMinor:    return "ContextVersionMinor";
+		case WindowAttribute::eContextRevision:	 	   return "ContextRevision";
+		case WindowAttribute::eContextRobustness:	   return "ContextRobustness";
+		case WindowAttribute::eOpenglForwardCompat:    return "OpenglForwardCompat";
+		case WindowAttribute::eOpenglDebugContext: 	   return "OpenglDebugContext";
+		case WindowAttribute::eOpenglProfile: 		   return "OpenglProfile";
+		case WindowAttribute::eContextReleaseBehavior: return "ContextReleaseBehavior";
+		case WindowAttribute::eContextNoError:		   return "ContextNoError";
+		case WindowAttribute::eContextCreationApi:	   return "ContexCreationApi";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
 	enum class ClientApi : EnumSize
 	{
 		eNone 	  = GLFW_NO_API,
@@ -1823,6 +2206,19 @@ namespace GLFW_HPP_NAMESPACE
 	};
 
 	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const ClientApi value) GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case ClientApi::eNone: 	   return "None";
+		case ClientApi::eOpengl:   return "Opengl";
+		case ClientApi::eOpenglEs: return "OpenglEs";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	template <ClientApi value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1853,6 +2249,19 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
+	template <Robustness value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case Robustness::eNone: 			   return "None";
+		case Robustness::eNoResetNotification: return "NoResetNotification";
+		case Robustness::eLoseContextOnReset:  return "LoseContextOnReset";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
 	enum class OpenglProfile : EnumSize
 	{
 		eAny 	= GLFW_OPENGL_ANY_PROFILE,
@@ -1872,24 +2281,52 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
+	template <OpenglProfile value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case OpenglProfile::eAny: 	 return "Any";
+		case OpenglProfile::eCore: 	 return "Core";
+		case OpenglProfile::eCompat: return "Compat";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
 	enum class InputMode : EnumSize
 	{
-		eCursor = GLFW_CURSOR,
-		eStickyKeys = GLFW_STICKY_KEYS,
+		eCursor 			= GLFW_CURSOR,
+		eStickyKeys 		= GLFW_STICKY_KEYS,
 		eStickyMouseButtons = GLFW_STICKY_MOUSE_BUTTONS,
-		eLockKeyMods = GLFW_LOCK_KEY_MODS,
-		eRawMouseMotion = GLFW_RAW_MOUSE_MOTION
+		eLockKeyMods 		= GLFW_LOCK_KEY_MODS,
+		eRawMouseMotion 	= GLFW_RAW_MOUSE_MOTION
 	};
 
 	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const InputMode value) GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
-		case InputMode::eCursor: return "Cursor";
-		case InputMode::eStickyKeys: return "StickyKeys";
+		case InputMode::eCursor: 			 return "Cursor";
+		case InputMode::eStickyKeys: 		 return "StickyKeys";
 		case InputMode::eStickyMouseButtons: return "StickyMouseButtons";
-		case InputMode::eLockKeyMods: return "LockKeyMods";
-		case InputMode::eRawMouseMotion: return "RawMouseMotion";
+		case InputMode::eLockKeyMods: 		 return "LockKeyMods";
+		case InputMode::eRawMouseMotion: 	 return "RawMouseMotion";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	template <InputMode value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case InputMode::eCursor: 			 return "Cursor";
+		case InputMode::eStickyKeys: 		 return "StickyKeys";
+		case InputMode::eStickyMouseButtons: return "StickyMouseButtons";
+		case InputMode::eLockKeyMods: 		 return "LockKeyMods";
+		case InputMode::eRawMouseMotion: 	 return "RawMouseMotion";
 		}
 
 		return invalidValueToString(static_cast<EnumSize>(value));
@@ -1903,6 +2340,19 @@ namespace GLFW_HPP_NAMESPACE
 	};
 
 	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const CursorMode value) GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case CursorMode::eNormal: 	return "Normal";
+		case CursorMode::eHidden: 	return "Hidden";
+		case CursorMode::eDisabled: return "Disabled";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	template <CursorMode value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -1933,6 +2383,19 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
+	template <ReleaseBehavior value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case ReleaseBehavior::eAny:   return "Any";
+		case ReleaseBehavior::eFlush: return "Flush";
+		case ReleaseBehavior::eNone:  return "None";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
 	enum class ContextApi : EnumSize
 	{
 		eNative = GLFW_NATIVE_CONTEXT_API,
@@ -1941,6 +2404,19 @@ namespace GLFW_HPP_NAMESPACE
 	}; 
 
 	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const ContextApi value) GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case ContextApi::eNative: return "Native";
+		case ContextApi::eEgl: 	  return "Egl";
+		case ContextApi::eOsmesa: return "Osmesa";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	template <ContextApi value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -2013,6 +2489,22 @@ namespace GLFW_HPP_NAMESPACE
 		return invalidValueToString(static_cast<EnumSize>(value));
 	}
 
+	template <CursorShape value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case CursorShape::eArrow: 	  return "Arrow";
+		case CursorShape::eIbeam: 	  return "Ibeam";
+		case CursorShape::eCrosshair: return "Crosshair";
+		case CursorShape::eHand: 	  return "Hand";
+		case CursorShape::eHresize:   return "Hresize";
+		case CursorShape::eVresize:   return "Vresize";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
 	enum class Event : EnumSize
 	{
 		eConnected 	  = GLFW_CONNECTED,
@@ -2020,6 +2512,18 @@ namespace GLFW_HPP_NAMESPACE
 	};
 
 	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const Event value) GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case Event::eConnected:	return "Connected";
+		case Event::eDisconnected:	return "Disconnected";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	template <Event value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -2053,7 +2557,20 @@ namespace GLFW_HPP_NAMESPACE
 		eCocoaMenubar 		 = GLFW_COCOA_MENUBAR
 	};
 
-	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const InitHint value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string(const enum InitHint value) GLFW_HPP_NOEXCEPT
+	{
+		switch(value)
+		{
+		case InitHint::eJoystickHatButtons:	 return "JoystickHatButtons";
+		case InitHint::eCocoaChdirResources: return "CocoaChdirResources";
+		case InitHint::eCocoaMenubar:		 return "CocoaMenubar";
+		}
+
+		return invalidValueToString(static_cast<EnumSize>(value));
+	}
+
+	template <enum InitHint value>
+	GLFW_HPP_NODISCARD("") GLFW_HPP_CONSTEXPR_TO_STRING GLFW_HPP_INLINE GLFW_HPP_STRING to_string() GLFW_HPP_NOEXCEPT
 	{
 		switch(value)
 		{
@@ -2780,7 +3297,7 @@ namespace GLFW_HPP_NAMESPACE
 	 *
 	 *  @ingroup init
 	 */
-	GLFW_HPP_INLINE void InitHint(const InitHint hint, const bool value) GLFW_HPP_NOEXCEPT
+	GLFW_HPP_INLINE void InitHint(const enum InitHint hint, const bool value) GLFW_HPP_NOEXCEPT
 	{
 		glfwInitHint(static_cast<int>(hint), value);
 	};
